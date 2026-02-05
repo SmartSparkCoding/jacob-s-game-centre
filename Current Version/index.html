@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Game Centre</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        color: #333;
+    }
+
+    /* Loading Screen */
+    #loading-screen {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        opacity: 1;
+        transition: opacity 0.6s ease;
+        z-index: 10;
+    }
+
+    /* Game Selection Grid */
+    #game-select {
+        display: none;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .game-card {
+        width: 260px;
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        margin: 20px auto;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        cursor: pointer;
+    }
+
+    .game-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+    }
+
+    .game-card img {
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    /* Game Viewer */
+    #game-viewer {
+        display: none;
+        width: 100%;
+        height: 100vh;
+        background: #eaeaea;
+        position: relative;
+    }
+
+    #game-frame {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    #back-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px 18px;
+        background: #333;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.25s ease;
+        z-index: 5;
+    }
+
+    #back-btn:hover {
+        background: #555;
+    }
+
+    /* Countdown (top right) */
+    #countdown {
+        position: fixed;
+        top: 15px;
+        right: 20px;
+        background: #333;
+        color: white;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-size: 14px;
+        display: none;
+        z-index: 20;
+    }
+
+    /* Blocking Overlay */
+    #block-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.55);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 50;
+    }
+
+    #block-box {
+        background: white;
+        padding: 30px;
+        width: 350px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+
+    #override-input {
+        width: 80%;
+        padding: 10px;
+        margin-top: 15px;
+        border-radius: 6px;
+        border: 1px solid #aaa;
+    }
+
+    #override-btn {
+        margin-top: 12px;
+        padding: 10px 20px;
+        background: #333;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    #override-btn:hover {
+        background: #555;
+    }
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+    Created and Designed by Jacob N
+</div>
+
+<div id="countdown"></div>
+
+<!-- Game Selection -->
+<div id="game-select">
+    <h1>Welcome to Jacob's Game Centre! Select a Game</h1>
+
+    <div class="game-card" onclick="openGame('slimeshooter.html')">
+        <img src="slime_shooter.jpg" alt="Slime Shooter">
+        <h2>Slime Shooter</h2>
+        <p>Created by Tristan P<br>Designed in Scratch</p>
+    </div>
+
+    <div class="game-card" onclick="openGame('orbitaloutpost.html')">
+        <img src="orbital_outpost.jpg" alt="Slime Shooter">
+        <h2>Orbital Outpost</h2>
+        <p>Created by Jacob N<br>Created Locally in HTML</p>
+    </div>
+
+    <div class="game-card" onclick="openGame('basketballshooter.html')">
+        <img src="basketball_shooter.jpg" alt="Basketball Shooter">
+        <h2>Basketball Shooter</h2>
+        <p>Created by Will R<br>Created Locally in HTML</p>
+    </div>
+
+    <div class="game-card" onclick="openGame('driftrunner.html')">
+        <img src="drift_runner.jpg" alt="Drift Runner">
+        <h2>Drift Runner</h2>
+        <p>Created by Will R<br>Created Locally in HTML</p>
+    </div>
+
+    <div class="game-card" onclick="openGame('geometrydash.html')">
+        <img src="geometry_dash.jpg" alt="Geometry Dash">
+        <h2>Geometry Dash - Scratch Version</h2>
+        <p>Create by Pearcek15 on Scratch<br>Converted to HTML from Scratch</p>
+    </div>
+
+</div>
+
+<!-- Game Viewer -->
+<div id="game-viewer">
+    <div id="back-btn" onclick="goBack()">Back</div>
+    <iframe id="game-frame"></iframe>
+</div>
+
+<!-- Blocking Overlay -->
+<div id="block-overlay">
+    <div id="block-box">
+        <h2>Game Centre is blocked during Lesson Time</h2>
+        <p id="unlock-countdown"></p>
+        <input type="password" id="override-input" placeholder="Enter override code">
+        <div id="override-btn" onclick="checkOverride()">Unlock</div>
+    </div>
+</div>
+
+<script>
+
+/* Scrambled version of the override code "290512150217" */
+const scrambled = "a2b9c0d5e1f2g1h5i0j2k1l7";
+
+/* Function to extract the real code */
+function getRealCode() {
+    return scrambled.replace(/[a-z]/g, "");
+}
+
+/* NEW: Prevent relocking after override */
+let overrideActive = false;
+
+/* Lesson time windows (GMT) */
+const lessonWindows = [
+    ["08:40", "11:00"],
+    ["11:25", "13:00"],
+    ["14:20", "15:50"]
+];
+
+/* Check if current GMT time is within lesson windows */
+function isLessonTime() {
+    if (overrideActive) return false; // NEW: override stops locking
+
+    const now = new Date();
+    const day = now.getUTCDay();
+    if (day === 0 || day === 6) return false; // Weekend
+
+    const current = now.getUTCHours() * 60 + now.getUTCMinutes();
+
+    for (let [start, end] of lessonWindows) {
+        const [sh, sm] = start.split(":").map(Number);
+        const [eh, em] = end.split(":").map(Number);
+        const startMin = sh * 60 + sm;
+        const endMin = eh * 60 + em;
+
+        if (current >= startMin && current <= endMin) return true;
+    }
+    return false;
+}
+
+/* Find minutes until next lock/unlock */
+function getTimeUntilChange() {
+    if (overrideActive) return null; // NEW: no countdown after override
+
+    const now = new Date();
+    const current = now.getUTCHours() * 60 + now.getUTCMinutes();
+
+    let times = [];
+
+    lessonWindows.forEach(([start, end]) => {
+        const [sh, sm] = start.split(":").map(Number);
+        const [eh, em] = end.split(":").map(Number);
+        times.push(sh * 60 + sm, eh * 60 + em);
+    });
+
+    times.sort((a, b) => a - b);
+
+    for (let t of times) {
+        if (t > current) return t - current;
+    }
+    return null;
+}
+
+/* Update lock state every 5 seconds */
+setInterval(updateLockState, 5000);
+updateLockState();
+
+function updateLockState() {
+    const overlay = document.getElementById("block-overlay");
+    const countdown = document.getElementById("countdown");
+    const unlockCountdown = document.getElementById("unlock-countdown");
+
+if (overrideActive) {
+    overlay.style.display = "none";
+    countdown.style.display = "none";
+    return; // Stop here ONLY after override
+}
+
+    const lesson = isLessonTime();
+    const mins = getTimeUntilChange();
+
+    if (lesson) {
+        overlay.style.display = "flex";
+        countdown.style.display = "none";
+        unlockCountdown.innerText = mins !== null ? `Unlocks in ${mins} minutes` : "";
+    } else {
+        overlay.style.display = "none";
+        countdown.style.display = "block";
+        countdown.innerText = mins !== null ? `Locking in ${mins} minutes` : "";
+    }
+}
+
+/* Override code check */
+function checkOverride() {
+    const input = document.getElementById("override-input").value;
+
+    if (input === getRealCode()) {
+        overrideActive = true; // NEW: permanently unlocked
+        document.getElementById("block-overlay").style.display = "none";
+        document.getElementById("countdown").style.display = "none";
+    } else {
+        alert("Incorrect code");
+    }
+}
+
+/* Loading Screen Fade Out */
+window.onload = function() {
+    setTimeout(() => {
+        document.getElementById("loading-screen").style.opacity = "0";
+        setTimeout(() => {
+            document.getElementById("loading-screen").style.display = "none";
+            document.getElementById("game-select").style.display = "block";
+        }, 600);
+    }, 1200);
+};
+
+/* Open Game */
+function openGame(file) {
+    document.getElementById("game-select").style.display = "none";
+    document.getElementById("game-viewer").style.display = "block";
+    document.getElementById("game-frame").src = file;
+}
+
+/* Back Button */
+function goBack() {
+    document.getElementById("game-viewer").style.display = "none";
+    document.getElementById("game-frame").src = "";
+    document.getElementById("game-select").style.display = "block";
+}
+
+</script>
+</body>
+</html>

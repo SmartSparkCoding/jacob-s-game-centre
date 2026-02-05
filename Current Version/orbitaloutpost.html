@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BETA 1.2 - Orbital Outpost by Jacob N</title>
+<style>
+  :root{
+    --bg1:#071026; --bg2:#0b2540;
+    --card:#0f1b2a; --accent:#6ff0c3; --accent-2:#7ad3ff;
+    --muted:#9fb7c9; --glass: rgba(255,255,255,0.03);
+    --glass-2: rgba(255,255,255,0.02); --glass-strong: rgba(255,255,255,0.06);
+    --success: #8effa3; --danger:#ff6b6b; --warn:#ffd86b;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  html,body{ height:100%; margin:0; background: radial-gradient(1200px 600px at 10% 10%, #08203a 0%, rgba(11,37,64,0) 30%), linear-gradient(180deg,var(--bg1),var(--bg2)); color:#e6f6ff; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  .wrap{ max-width:1150px; margin:20px auto; padding:22px; display:grid; grid-template-columns: 1fr 420px; gap:18px; }
+  header{ grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px; }
+  .brand{ display:flex; gap:12px; align-items:center; }
+  .logo{ width:56px; height:56px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); box-shadow:0 6px 20px rgba(13,66,90,0.35), inset 0 -6px 18px rgba(0,0,0,0.25); display:flex; align-items:center; justify-content:center; }
+  h1{ margin:0; font-size:20px; } .subtitle{ font-size:12px; color:var(--muted); margin-top:4px; }
+
+  .card{ background: linear-gradient(180deg,var(--glass),var(--glass-2)); border-radius:14px; padding:14px; box-shadow: 0 8px 30px rgba(2,10,20,0.45); border:1px solid rgba(255,255,255,0.03); }
+  .main{ min-height:520px; display:flex; flex-direction:column; gap:14px; }
+  .station{ display:flex; gap:14px; align-items:stretch; }
+  .play-area{ flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:18px; border-radius:12px; position:relative; overflow:hidden; }
+
+  #fluxButton{ background: linear-gradient(180deg,#1ad9a9,#06c7a0); border:none; padding:26px 40px; font-size:26px; font-weight:700; color:#02221a; border-radius:16px; cursor:pointer; box-shadow: 0 10px 30px rgba(9,113,93,0.18); transition:transform .08s; display:flex; gap:12px; align-items:center;}
+  #fluxButton:active{ transform:scale(.98); }
+  .flux-icon{ width:34px; height:34px; filter:drop-shadow(0 6px 18px rgba(0,0,0,0.28)); }
+
+  .hud{ display:flex; gap:10px; align-items:center; justify-content:center; font-weight:600; color:var(--muted); font-size:14px; }
+  .hud .stat{ padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); display:flex; gap:8px; align-items:center; }
+
+  .sidebar{ display:flex; flex-direction:column; gap:12px; }
+  .upgrades-list{ display:flex; flex-direction:column; gap:8px; max-height:280px; overflow:auto; padding-right:6px; }
+
+  .upgrade{ display:flex; gap:12px; align-items:center; padding:10px; border-radius:10px; background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.02); }
+  .upgrade .icon{ width:56px; height:56px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); }
+  .upgrade .meta{ flex:1; text-align:left; }
+  .btn-buy{ padding:8px 12px; border-radius:8px; border:none; background: linear-gradient(180deg,var(--accent-2),var(--accent)); color:#02221a; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.25); }
+  .btn-small{ padding:6px 8px; border-radius:6px; border:none; background: linear-gradient(180deg,#fff,#fff); color:#02221a; font-weight:700; cursor:pointer; }
+
+  .footer{ grid-column:1 / -1; display:flex; gap:14px; margin-top:6px; }
+  .small{ font-size:13px; color:var(--muted); }
+
+  .modal-backdrop{ position:fixed; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.6)); display:none; align-items:center; justify-content:center; z-index:60; }
+  .modal{ width:min(820px,92%); background: linear-gradient(180deg, rgba(10,18,26,0.95), rgba(6,10,14,0.96)); border-radius:14px; padding:18px; box-shadow:0 20px 60px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.03); color:#e6f6ff; }
+
+  .target{ width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; color:#011212; background: radial-gradient(circle at 30% 20%, #ffd56b, #ffb86b); box-shadow:0 8px 20px rgba(0,0,0,0.30); cursor:pointer; }
+
+  .dock-area{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+  .dock-row{ display:flex; gap:8px; align-items:center; justify-content:space-between; padding:8px; border-radius:8px; background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02); }
+  .ship-icon{ width:44px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:8px; color:#02221a; font-weight:800; background: linear-gradient(180deg,#ffd56b,#ff9f6b); }
+  .status-pill{ padding:6px 8px; border-radius:8px; font-weight:700; font-size:12px; color:#02221a; }
+
+  .muted { color:var(--muted); font-weight:600; }
+  .muted-small{ font-size:12px; color:var(--muted); }
+  .tiny{ font-size:12px; color:var(--muted); }
+
+  .popup{ position:fixed; right:22px; top:20px; z-index:200; display:flex; flex-direction:column; gap:8px; pointer-events:none; width:auto; max-width:320px; }
+  .notif{ min-width:240px; padding:10px 12px; border-radius:10px; color:#07171a; font-weight:800; pointer-events:auto; box-shadow:0 10px 30px rgba(0,0,0,0.5); display:flex; align-items:center; gap:10px; }
+
+  .notif.green{ background: linear-gradient(180deg,#bfffd6,#8effa3); }
+  .notif.yellow{ background: linear-gradient(180deg,#fff1b7,#ffd86b); }
+  .notif.red{ background: linear-gradient(180deg,#ffd0d0,#ff8f8f); }
+
+  .log-wrap{ display:flex; flex-direction:column; gap:6px; }
+  #log{ max-height:220px; overflow:auto; padding:8px; border-radius:8px; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.02); display:none; } /* hidden by default */
+  #showLogBtn{ display:block; margin-top:8px; padding:8px 10px; border-radius:8px; border:none; background:linear-gradient(180deg,#7ad3ff,#6ff0c3); color:#02221a; font-weight:800; cursor:pointer; }
+
+  .shop-tabs{ display:flex; gap:8px; margin-bottom:10px; }
+  .tab{ padding:6px 10px; border-radius:8px; cursor:pointer; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.02); }
+  .tab.active{ background: linear-gradient(180deg,var(--accent-2),var(--accent)); color:#02221a; font-weight:800; }
+
+  input[type="text"]{
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: #e8fbff; font-size:14px;
+  }
+
+  @media (max-width:1100px){ .wrap{ grid-template-columns: 1fr; padding:12px; } .sidebar{ order:2; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden>
+       <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#02221a" stroke-width="1">
+    <circle cx="32" cy="32" r="12" fill="#001a1a"/>
+  </g>
+  <g fill="#001a1a">
+    <path d="M6 32c7-12 26-20 52-26-7 26-15 45-26 52C22 60 8 46 6 32z" fill="#00ffd9" fill-opacity="0.08"/>
+  </g>
+  <g>
+    <circle cx="32" cy="32" r="8" fill="#7ad3ff"/>
+    <circle cx="34" cy="28" r="2.2" fill="#02221a"/>
+  </g>
+  <image href="main-logo.png" x="16" y="16" width="32" height="32" />
+</svg>      
+      </div>
+      <div>
+        <h1>Orbital Outpost</h1>
+        <div class="subtitle">BETA PHASE 1.2 - Tap, build, play mini-games, send ships — saved locally</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div id="playerNameDisplay" class="small muted">Welcome, Commander</div>
+      <button id="musicToggle" class="btn-buy" title="Mute / unmute ambient music">Start Music</button>
+      <button id="btnExport" class="btn-buy" title="Export your save to a file">Export Save</button>
+      <button id="btnImport" class="btn-buy" title="Import a save file">Import Save</button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main card">
+    <div class="station">
+      <div class="play-area card" style="flex:1;">
+        <div class="hud" style="margin-bottom:12px;">
+          <div class="stat">Flux: <span id="fluxDisplay" style="color:var(--accent); margin-left:8px; font-weight:800;">0</span></div>
+          <div class="stat">Per click: <span id="perClick" style="color:var(--accent-2); margin-left:8px; font-weight:800;">1</span></div>
+          <div class="stat">Per sec: <span id="perSec" style="color:var(--muted); margin-left:8px; font-weight:800;">0</span></div>
+        </div>
+
+        <button id="fluxButton" title="Click to create liquid Flux">
+          <svg class="flux-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#02221a" d="M12 2l3 6 6 .5-4.5 4 1.5 6L12 16 5 18.5 6.5 12 2 8.5 8.5 8z"/></svg>
+          <div style="text-align:left">
+            <div style="font-size:12px; color:#03322c; font-weight:700; opacity:.92">Tap for Flux</div>
+            <div style="font-size:18px; color:#042f2b">Collect energy from your outpost</div>
+          </div>
+        </button>
+
+        <div style="margin-top:14px; color:var(--muted); font-size:13px;">Click fast — build modules — send ships on journeys</div>
+        <div id="particleLayer" style="position:absolute; inset:0; pointer-events:none;"></div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px;">
+      <div class="card" style="flex:1;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-weight:800">Base Overview</div>
+          <div class="muted">Progress saved locally</div>
+        </div>
+
+        <div style="margin-top:12px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+          <div style="background:var(--glass-strong); padding:10px; border-radius:8px; text-align:center;">
+            <div class="muted">Modules</div>
+            <div id="modulesCount" style="font-weight:900; font-size:18px; margin-top:6px">0</div>
+          </div>
+          <div style="background:var(--glass-strong); padding:10px; border-radius:8px; text-align:center;">
+            <div class="muted">Parts</div>
+            <div id="partsCount" style="font-weight:900; font-size:18px; margin-top:6px">0</div>
+          </div>
+          <div style="background:var(--glass-strong); padding:10px; border-radius:8px; text-align:center;">
+            <div class="muted">Galactic Tokens</div>
+            <div id="tokensCount" style="font-weight:900; font-size:18px; margin-top:6px">0</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:800">Ship Docking Area</div>
+            <div class="muted-small">Docked, repairs & ruins</div>
+          </div>
+          <div id="dockList" class="dock-area" style="margin-top:8px; max-height:180px; overflow:auto;"></div>
+        </div>
+
+      </div>
+
+      <div class="card" style="width:320px;">
+        <div style="font-weight:800">Quick Actions</div>
+        <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+          <button id="btnPlayMini" class="btn-buy">Arcade Blitz (10s)</button>
+          <button id="btnAsteroid" class="btn-buy">Asteroid Miner (8s)</button>
+          <button id="btnComms" class="btn-buy">Comms Relay (reaction)</button>
+          <button id="btnLargeExp" class="btn-buy">Large Expedition (send all docked ships)</button>
+          <button id="btnReset" class="btn-buy" style="background:linear-gradient(180deg,#ff7b7b,#ff5a5a); margin-top:30px;">Reset Save CAREFUL</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-weight:800">Shops</div>
+        <div class="muted" style="font-size:12px">Base shop & Shipyard</div>
+      </div>
+
+      <div class="shop-tabs" style="margin-top:10px;">
+        <div id="tabBase" class="tab active">Base Shop</div>
+        <div id="tabShip" class="tab">Shipyard</div>
+        <div id="tabToken" class="tab">Token Upgrades</div>
+      </div>
+
+      <div id="shopContainer" style="margin-top:6px; max-height:380px; overflow:auto;">
+        <div id="baseShop" class="upgrades-list"></div>
+        <div id="shipShop" style="display:none;"></div>
+        <div id="tokenShop" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:800; margin-bottom:6px;">Activity Log</div>
+      <div class="log-wrap">
+        <div id="log" class="small muted"></div>
+        <!-- Show log button located in Settings (per your instruction). Keep a backup hide button but hidden by default. -->
+        <button id="logHideBtn" style="display:none;" class="btn-small">Hide Log</button>
+      </div>
+      <div class="tiny" style="margin-top:8px;">(Use Settings → Show Activity Log to open.)</div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:800">Settings</div>
+      <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+        <label class="small muted">Player name</label>
+        <input id="playerNameInput" type="text" placeholder="Commander name"/>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <button id="btnSaveName" class="btn-buy">Save Name</button>
+          <button id="btnClearName" class="btn-buy" style="background: linear-gradient(180deg,#ffb86b,#ffcf6b)">Clear</button>
+        </div>
+
+        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+          <button id="showLogBtn" class="btn-buy">Show Activity Log</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="footer">
+    <div class="card small" style="flex:1;">
+      <strong>BETA PHASE 1.2 - DO NOT CHANGE: How to play:</strong> Click or Tap for Flux, buy Base Shop modules to grow Flux/per-click/per-sec, buy ships then send them from Dock or Shipyard for rewards. Use Parts for ships/upgrades. Token Upgrades are permanent. Save/export to protect your base.
+    </div>
+
+    <div class="card small" style="width:320px; display:flex; flex-direction:column; gap:8px;">
+      <div style="display:flex; justify-content:space-between;"><div class="muted">Autosave</div><div id="autosaveIndicator" class="muted">Idle</div></div>
+      <div style="display:flex; gap:8px; align-items:center;"><div class="muted">Export / Import:</div><div style="display:flex; gap:6px;"><button id="quickExport" class="btn-buy" style="padding:6px 8px;">Export</button><button id="quickImport" class="btn-buy" style="padding:6px 8px;">Import</button></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- notifications -->
+<div class="popup" id="popupArea"></div>
+
+<!-- modal -->
+<div id="modalBackdrop" class="modal-backdrop" aria-hidden>
+  <div class="modal" role="dialog" aria-modal="true" id="modal"></div>
+</div>
+
+<script>
+
+/* ================= LESSON TIME BLOCKER ================= */
+(function lessonTimeBlocker(){
+  const now = new Date();
+  const day = now.getDay(); // Sunday=0
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const currentMins = hour * 60 + minute;
+  const isWeekend = (day === 0 || day === 6);
+
+  // Lesson time ranges in minutes (fixed – test block removed)
+  const lessonBlocks = [
+    [520, 660],   // 08:40–11:00
+    [685, 780],   // 11:25–13:00
+    [845, 950]    // 14:05–15:50
+  ];
+
+  const inLessonTime = lessonBlocks.some(([start, end]) => currentMins >= start && currentMins <= end);
+  window.stopGameBlocked = false;
+
+  if (!isWeekend && inLessonTime) {
+    window.stopGameBlocked = true;
+
+    const blocker = document.createElement('div');
+    blocker.style.position = 'fixed';
+    blocker.style.inset = '0';
+    blocker.style.zIndex = '9999';
+    blocker.style.background = 'linear-gradient(180deg, rgba(7,16,38,0.85), rgba(11,37,64,0.85))';
+    blocker.style.display = 'flex';
+    blocker.style.flexDirection = 'column';
+    blocker.style.alignItems = 'center';
+    blocker.style.justifyContent = 'center';
+    blocker.style.fontFamily = 'Inter, ui-sans-serif';
+    blocker.innerHTML = `
+      <div style="background:var(--card);padding:24px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.6);text-align:center;max-width:360px;">
+        <h2 style="color:#ff6b6b;margin-bottom:12px;">Orbital Outpost is blocked during Lesson Time</h2>
+        <p style="color:var(--muted);font-size:14px;margin-bottom:18px;">Type override code to continue:</p>
+        <input id="lessonCodeInput" type="text" placeholder="Enter code" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#e8fbff;font-size:14px;margin-bottom:12px;" />
+        <button id="lessonCodeSubmit" style="padding:10px 16px;border-radius:8px;border:none;background:linear-gradient(180deg,#7ad3ff,#6ff0c3);color:#02221a;font-weight:800;cursor:pointer;">Submit</button>
+        <p id="lessonCodeError" style="color:#ff6b6b;font-size:13px;margin-top:10px;display:none;">Incorrect code</p>
+      </div>
+    `;
+    document.body.appendChild(blocker);
+
+    document.getElementById('lessonCodeSubmit').addEventListener('click', () => {
+      const input = document.getElementById('lessonCodeInput').value.trim();
+      if (input === '290512150217290512150217') {
+        blocker.remove();
+        window.stopGameBlocked = false;
+        if (typeof window.resumeGameInit === 'function') window.resumeGameInit();
+      } else {
+        document.getElementById('lessonCodeError').style.display = 'block';
+      }
+    });
+  }
+})();
+if (typeof window.stopGameBlocked === 'undefined') window.stopGameBlocked = false;
+/* ======================================================= */
+
+/* Fixed full game script
+   - Welcome modal fixed and styled input
+   - Activity log hidden by default; shown with Settings → Show Activity Log
+   - Shops properly built (no name collisions)
+   - Autosave every 6000ms
+   - Comms Relay accepts up to 5000ms and tiers rewards
+   - Notifications capped to 3 and auto-remove at 3.75s
+   - Export/Import still works and merges safely
+*/
+
+/* ---------------------- Utilities & Save ---------------------- */
+const SAVE_KEY = 'orbitalOutpost_v1';
+const AUTO_SAVE_INTERVAL_MS = 6000; // saved every 6s (user requested)
+const popupArea = document.getElementById('popupArea');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modal = document.getElementById('modal');
+const logEl = document.getElementById('log');
+
+function uid(prefix='id'){ return prefix + '_' + Math.floor(Math.random()*1e9); }
+function rand(min,max){ return Math.random()*(max-min)+min; }
+function format(n){ return Math.floor(n).toLocaleString(); }
+function now(){ return Date.now(); }
+
+/* particle helper (same as before) */
+const particleLayer = document.getElementById('particleLayer');
+function makeSpark(x,y){ const s=document.createElement('div'); s.className='spark'; s.style.left=x+'px'; s.style.top=y+'px'; s.style.width=(6+Math.random()*14)+'px'; s.style.height=s.style.width; particleLayer.appendChild(s); setTimeout(()=>s.remove(),950); }
+
+/* ---------------------- Default data ---------------------- */
+const defaultData = {
+  name:'', flux:0, fluxPerClick:1, fluxPerSec:0,
+  parts:0, tokens:0, modules: { solar:0, arcade:0, farm:0, rabbit:0, battery:0, condenser:0, labs:0, printer:0, turbo:0, satcom:0, shield:0, market:0, drone:0 },
+  prestigeCount:0, unlockedCosmetics:{},
+  ships:[],    // instances: {id, shipId, state}
+  missions:[], // missions: {uid, instanceId, shipId, startedAt, endTime}
+  tokenUpgrades: { fluxBoost:0, startFlux:0, safeShips:0 }
+};
+
+/* ---------------------- Load & Save (deepish merge) ---------------------- */
+let data = null;
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      const merged = JSON.parse(JSON.stringify(defaultData));
+      for(const k in parsed){
+        if(typeof parsed[k] === 'object' && parsed[k] !== null && !Array.isArray(parsed[k])){
+          merged[k] = Object.assign({}, merged[k], parsed[k]);
+        } else {
+          merged[k] = parsed[k];
+        }
+      }
+      merged.ships = parsed.ships || merged.ships;
+      merged.missions = parsed.missions || merged.missions;
+      merged.tokenUpgrades = Object.assign({}, merged.tokenUpgrades, parsed.tokenUpgrades || {});
+      return merged;
+    }
+  }catch(e){ console.error('load failed', e); }
+  return JSON.parse(JSON.stringify(defaultData));
+}
+function saveGame(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    document.getElementById('autosaveIndicator').textContent = 'Saved ' + new Date().toLocaleTimeString();
+    addLog('Saved game');
+  }catch(e){ console.error('Save failed', e); document.getElementById('autosaveIndicator').textContent = 'Save error'; }
+}
+function resetSave(){
+  if(!confirm('Are you sure? This will delete your local save.')) return;
+  localStorage.removeItem(SAVE_KEY);
+  data = JSON.parse(JSON.stringify(defaultData));
+  buildAllUI();
+  saveGame();
+  addLog('Save reset by player');
+}
+
+data = loadSave();
+
+/* ---------------------- DOM refs ---------------------- */
+const fluxDisplay = document.getElementById('fluxDisplay');
+const perClickDisplay = document.getElementById('perClick');
+const perSecDisplay = document.getElementById('perSec');
+const modulesCount = document.getElementById('modulesCount');
+const partsCount = document.getElementById('partsCount');
+const tokensCount = document.getElementById('tokensCount');
+const fluxButton = document.getElementById('fluxButton');
+const playerNameInput = document.getElementById('playerNameInput');
+const playerNameDisplay = document.getElementById('playerNameDisplay');
+const baseShopEl = document.getElementById('baseShop');
+const shipShopEl = document.getElementById('shipShop');
+const tokenShopEl = document.getElementById('tokenShop');
+const dockListEl = document.getElementById('dockList');
+const showLogBtn = document.getElementById('showLogBtn');
+const logHideBtn = document.getElementById('logHideBtn');
+
+/* ---------------------- Logging & small helpers ---------------------- */
+function addLog(msg){
+  const line = document.createElement('div');
+  line.textContent = `[${(new Date()).toLocaleTimeString()}] ${msg}`;
+  logEl.prepend(line);
+  while(logEl.children.length > 200) logEl.removeChild(logEl.lastChild);
+}
+
+/* Activity log visibility: hidden by default; show via settings button */
+function showActivityLog(){
+  logEl.style.display = 'block';
+  logHideBtn.style.display = 'inline-block';
+}
+function hideActivityLog(){
+  logEl.style.display = 'none';
+  logHideBtn.style.display = 'none';
+}
+showLogBtn.addEventListener('click', ()=>{
+  showActivityLog();
+});
+logHideBtn.addEventListener('click', ()=> hideActivityLog());
+
+/* ---------------------- Notifications (cap 3, auto-remove 3.75s) ---------------------- */
+const NOTIF_MAX = 3;
+const NOTIF_TTL_MS = 3750;
+let notifQueue = [];
+function addNotification(text, severity='green'){
+  // remove extras if already at capacity
+  while(notifQueue.length >= NOTIF_MAX){
+    const oldest = notifQueue.shift();
+    try{ oldest.el.remove(); clearTimeout(oldest.timeout); }catch(e){}
+  }
+  const el = document.createElement('div');
+  el.className = 'notif ' + (severity === 'green' ? 'green' : severity === 'yellow' ? 'yellow' : 'red');
+  el.textContent = text;
+  popupArea.appendChild(el);
+  const timeout = setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(10px)'; setTimeout(()=>{ el.remove(); notifQueue = notifQueue.filter(n=>n.el!==el); }, 300); }, NOTIF_TTL_MS);
+  notifQueue.push({ el, timeout });
+}
+
+/* ---------------------- Audio & ambient (attempt) ---------------------- */
+let audioCtx = null;
+let ambientNodes = null;
+function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function startAmbient(){
+  try{
+    ensureAudio();
+    if(ambientNodes) return;
+    const master = audioCtx.createGain(); master.gain.value = 0.02; master.connect(audioCtx.destination);
+    const o = audioCtx.createOscillator(); o.type='sine'; o.frequency.value = 100; o.connect(master);
+    const o2 = audioCtx.createOscillator(); o2.type='sine'; o2.frequency.value = 154; o2.connect(master);
+    const lfo = audioCtx.createOscillator(); lfo.type='sine'; lfo.frequency.value = 0.06;
+    const lfoGain = audioCtx.createGain(); lfoGain.gain.value = 10;
+    lfo.connect(lfoGain); lfoGain.connect(o.frequency);
+    o.start(); o2.start(); lfo.start();
+    ambientNodes = [master, o, o2, lfo];
+    document.getElementById('musicToggle').textContent = 'Mute Music';
+  }catch(e){ console.warn('ambient start failed', e); }
+}
+function stopAmbient(){
+  if(!ambientNodes) return;
+  ambientNodes.forEach(n=>{ try{ n.stop?.(); n.disconnect?.(); }catch(e){} });
+  ambientNodes = null;
+  document.getElementById('musicToggle').textContent = 'Start Music';
+}
+document.getElementById('musicToggle').addEventListener('click', ()=>{
+  try{ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); }catch(e){}
+  if(!ambientNodes) startAmbient(); else stopAmbient();
+});
+function playSFX(type){
+  try{
+    ensureAudio();
+    const g = audioCtx.createGain(); g.gain.value = 0.05; g.connect(audioCtx.destination);
+    const o = audioCtx.createOscillator();
+    if(type==='click'){ o.frequency.value=240; o.type='sine'; }
+    else if(type==='launch'){ o.frequency.value=320; o.type='triangle'; }
+    else if(type==='return'){ o.frequency.value=220; o.type='sawtooth'; }
+    else if(type==='buy'){ o.frequency.value=440; o.type='sine'; }
+    else if(type==='expedition'){ o.frequency.value=140; o.type='sine'; }
+    o.connect(g); o.start();
+    setTimeout(()=>{ try{ o.stop(); g.disconnect(); }catch(e){} }, 160);
+  }catch(e){}
+}
+
+/* ---------------------- Resources & Modules ---------------------- */
+function gainFlux(amount){ amount = Number(amount)||0; if(amount<=0) return; const boost = data.tokenUpgrades.fluxBoost||0; data.flux += Math.round(amount * (1 + 0.05*boost)); updateDisplays(); debounceSave(); }
+function spendFlux(amount){ amount = Number(amount)||0; if(data.flux >= amount){ data.flux -= amount; updateDisplays(); saveGame(); return true; } return false; }
+
+/* Module definitions (original + 9 extras) */
+const MODULES = [
+  { id:'solar', title:'Solar Atrium', desc:'Generates steady Flux per second.', baseCost:20 },
+  { id:'farm', title:'Hydroponic Farm', desc:'Bigger passive generator.', baseCost:70 },
+  { id:'arcade', title:'Arcade Room', desc:'Unlocks arcade; boosts parts.', baseCost:50 },
+  { id:'rabbit', title:'Internet Rabbit Hole', desc:'Random bursts, risky.', baseCost:120 },
+  { id:'battery', title:'Flux Battery', desc:'Stores extra Flux; increases per-click.', baseCost:40 },
+  { id:'condenser', title:'Condenser Array', desc:'Multiples passive efficiency slightly.', baseCost:200 },
+  { id:'labs', title:'Research Labs', desc:'Reduce costs of future modules.', baseCost:350 },
+  { id:'printer', title:'Parts Printer', desc:'Generates a trickle of Parts over time.', baseCost:150 },
+  { id:'turbo', title:'Tap Turbo', desc:'Temporary click multiplier upgrades available.', baseCost:250 },
+  { id:'satcom', title:'Satcom Array', desc:'Increase ship success chance slightly.', baseCost:400 },
+  { id:'shield', title:'Outpost Shield', desc:'Reduce risk of random events.', baseCost:500 },
+  { id:'market', title:'Trading Market', desc:'Convert small amounts of Flux -> Parts automatically.', baseCost:300 },
+  { id:'drone', title:'Collector Drone', desc:'Auto-collect small Flux while idle.', baseCost:220 }
+];
+function moduleCost(moduleId, nextLevel){
+  const m = MODULES.find(x=>x.id===moduleId);
+  const lvl = (typeof nextLevel !== 'undefined') ? nextLevel : (data.modules[moduleId] || 0);
+  return Math.round(m.baseCost * Math.pow(1.85, lvl));
+}
+
+/* ---------------------- Ships ---------------------- */
+const SHIPS = [
+  { id:'scout', name:'Scout', desc:'Fast & cheap — low risk, quick returns.', costParts:10, costTokens:0, duration:30, rewardFlux:[50,120], rewardParts:[2,6], risk:{lost:0.02, damaged:0.12} },
+  { id:'hauler', name:'Hauler', desc:'Slow but carries a lot.', costParts:35, costTokens:0, duration:95, rewardFlux:[220,520], rewardParts:[10,30], risk:{lost:0.06, damaged:0.18} },
+  { id:'fighter', name:'Fighter', desc:'Higher reward, token cost.', costParts:8, costTokens:1, duration:65, rewardFlux:[160,420], rewardParts:[5,18], risk:{lost:0.12, damaged:0.24} },
+  { id:'colony', name:'Colony', desc:'Big expedition; very long & risky.', costParts:120, costTokens:2, duration:300, rewardFlux:[1500,4200], rewardParts:[120,420], risk:{lost:0.26, damaged:0.30} },
+  { id:'explorer', name:'Explorer', desc:'Special ship for rare finds; medium duration.', costParts:80, costTokens:1, duration:140, rewardFlux:[520,1100], rewardParts:[40,100], risk:{lost:0.16, damaged:0.22} },
+  { id:'newfrig', name:'Scaranull', desc:'Experimental ship - new creation', costParts:1200, costTokens:2, duration:200, rewardFlux:[507,960], rewardParts:[87,328], risk:{lost:0.05, damaged:0.48} } // new ship
+];
+function shipCostText(ship){ const parts = ship.costParts ? `${ship.costParts} Parts` : ''; const tokens = ship.costTokens ? `${ship.costTokens} Tokens` : ''; return [parts,tokens].filter(Boolean).join(' + '); }
+
+/* ---------------------- Build Shops ---------------------- */
+function iconFor(id){ return `<svg viewBox="0 0 64 64" width="36" height="36"><circle cx="32" cy="32" r="10" fill="#ffd56b"/></svg>`; }
+
+function buildBaseShop(){
+  baseShopEl.innerHTML = '';
+  MODULES.forEach(mod=>{
+    const el = document.createElement('div'); el.className='upgrade';
+    el.innerHTML = `
+      <div class="icon" aria-hidden>${iconFor(mod.id)}</div>
+      <div class="meta"><div class="title">${mod.title}</div><div class="desc">${mod.desc}</div><div class="muted-small" style="margin-top:6px">Level: <span id="lvl-${mod.id}">${data.modules[mod.id]||0}</span></div></div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <div class="muted-small">Cost</div>
+        <div style="font-weight:900; font-size:16px" id="cost-${mod.id}">${format(moduleCost(mod.id))}</div>
+        <div><button class="btn-buy" id="buy-${mod.id}">Buy</button></div>
+      </div>
+    `;
+    baseShopEl.appendChild(el);
+    el.querySelector(`#buy-${mod.id}`).addEventListener('click', ()=>{
+      const cost = moduleCost(mod.id);
+      if(spendFlux(cost)){ data.modules[mod.id] = (data.modules[mod.id] || 0) + 1; applyModuleEffects(mod.id); addLog(`Purchased ${mod.title} → level ${data.modules[mod.id]}`); playSFX('buy'); updateAll(); saveGame(); } else flashMissing();
+    });
+  });
+}
+
+function buildShipShop(){
+  shipShopEl.innerHTML = '';
+  SHIPS.forEach(s=>{
+    const row = document.createElement('div'); row.style.display='flex'; row.style.gap='10px'; row.style.padding='8px'; row.style.alignItems='center';
+    row.innerHTML = `<div class="ship-icon">${s.name.slice(0,2).toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-weight:800">${s.name}</div>
+        <div class="muted-small" style="margin-top:4px">${s.desc}</div>
+        <div class="muted-small" style="margin-top:6px">Cost: <strong>${shipCostText(s)}</strong> • Duration: ${s.duration}s</div>
+      </div>
+      <div style="display:flex; gap:6px; flex-direction:column; align-items:flex-end;">
+        <div class="muted-small">Owned: <span id="own-${s.id}">${data.ships.filter(x=>x.shipId===s.id && x.state!=='ruined').length}</span></div>
+        <div style="display:flex; gap:6px;"><button class="btn-buy" id="buyship-${s.id}">Buy</button><button class="btn-buy" id="send-${s.id}">Send</button></div>
+      </div>`;
+    shipShopEl.appendChild(row);
+    row.querySelector(`#buyship-${s.id}`).addEventListener('click', ()=> {
+      if(data.parts < (s.costParts||0) || data.tokens < (s.costTokens||0)){ flashMissing(); return; }
+      data.parts -= s.costParts || 0; data.tokens -= s.costTokens || 0;
+      const inst = { id: uid('ship'), shipId: s.id, state: 'docked' };
+      data.ships.push(inst);
+      addLog(`Bought ${s.name} (${inst.id})`);
+      playSFX('buy'); updateAll(); saveGame();
+    });
+    row.querySelector(`#send-${s.id}`).addEventListener('click', ()=>{
+      const inst = data.ships.find(x=>x.shipId===s.id && x.state==='docked');
+      if(!inst){ alert('No docked ship of this type available'); return; }
+      sendShipInstance(inst.id);
+    });
+  });
+}
+
+function buildTokenShop(){
+  tokenShopEl.innerHTML = '';
+  const TOKEN_BUILDER = [
+    { id:'fluxBoost', title:'Flux Boost', desc:'Each level increases flux gained by +5% permanently.', cost:1 },
+    { id:'startFlux', title:'Start Flux', desc:'Each level grants extra starting Flux on next run.', cost:1 },
+    { id:'safeShips', title:'Ship Insurance', desc:'Reduce ship lost chance slightly.', cost:2 }
+  ];
+  TOKEN_BUILDER.forEach(up=>{
+    const lvl = data.tokenUpgrades[up.id] || 0;
+    const div = document.createElement('div'); div.className='upgrade';
+    div.innerHTML = `<div class="icon" aria-hidden>${iconFor(up.id)}</div>
+      <div class="meta"><div class="title">${up.title}</div><div class="desc">${up.desc}</div><div class="muted-small" style="margin-top:6px">Level: <span id="t-${up.id}">${lvl}</span></div></div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        <div class="muted-small">Cost: <strong>${up.cost} Tokens</strong></div>
+        <div><button class="btn-buy" id="buy-token-${up.id}">Buy</button></div>
+      </div>`;
+    tokenShopEl.appendChild(div);
+    div.querySelector(`#buy-token-${up.id}`).addEventListener('click', ()=>{
+      if(data.tokens < up.cost){ flashMissing(); return; }
+      data.tokens -= up.cost; data.tokenUpgrades[up.id] = (data.tokenUpgrades[up.id]||0) + 1;
+      addLog(`Token upgrade purchased: ${up.title}`);
+      playSFX('buy'); updateAll(); saveGame();
+    });
+  });
+}
+
+/* ---------------------- Module Effects & Production ---------------------- */
+function applyModuleEffects(modId){
+  if(modId === 'arcade') data.parts += 5;
+  if(modId === 'printer') data.parts += 3;
+  if(modId === 'drone') data.flux += 10;
+  recalcProduction();
+}
+function recalcProduction(){
+  let perSec = 0;
+  perSec += (data.modules.solar||0) * 1.5;
+  perSec += (data.modules.farm||0) * 6;
+  perSec += (data.modules.arcade||0) * 0.2;
+  perSec += (data.modules.printer||0) * 0.2;
+  perSec += (data.modules.drone||0) * 0.6;
+  data.fluxPerSec = Math.max(0, Math.round(perSec*100)/100);
+  data.fluxPerClick = 1 + (data.modules.arcade||0)*0.4 + (data.modules.rabbit||0)*0.2 + (data.modules.battery||0)*0.15;
+  const boost = data.tokenUpgrades.fluxBoost || 0;
+  data.fluxPerClick *= (1 + 0.05 * boost);
+  data.fluxPerSec *= (1 + 0.05 * boost);
+}
+
+/* ---------------------- Ships: send, resolve, dock UI ---------------------- */
+function buyShip(shipId){
+  const s = SHIPS.find(x=>x.id===shipId);
+  if(!s) return;
+  if(data.parts < (s.costParts||0) || data.tokens < (s.costTokens||0)){ flashMissing(); return; }
+  data.parts -= s.costParts||0; data.tokens -= s.costTokens||0;
+  const instance = { id: uid('ship'), shipId: s.id, state: 'docked' };
+  data.ships.push(instance);
+  addLog(`Bought ${s.name} (ID:${instance.id})`);
+  playSFX('buy'); updateAll(); saveGame();
+}
+
+function sendShipInstance(instanceId){
+  const inst = data.ships.find(x=>x.id===instanceId);
+  if(!inst || inst.state !== 'docked') { flashMissing(); return; }
+  const shipDef = SHIPS.find(s=>s.id===inst.shipId);
+  const mid = uid('m');
+  const durationMs = shipDef.duration * 1000;
+  const mission = { uid: mid, instanceId: instanceId, shipId: inst.shipId, startedAt: Date.now(), endTime: Date.now() + durationMs };
+  data.missions.push(mission);
+  inst.state = 'away';
+  addLog(`${shipDef.name} (${instanceId}) launched — ETA ${shipDef.duration}s`);
+  addNotification(`${shipDef.name} launched`, 'yellow');
+  playSFX('launch'); updateAll(); saveGame();
+}
+
+function resolveMission(mission){
+  const inst = data.ships.find(s=>s.id===mission.instanceId);
+  const shipDef = SHIPS.find(s=>s.id===mission.shipId);
+  if(!shipDef || !inst){ data.flux += 5; return; }
+  const shieldLevel = (data.modules.shield||0);
+  const satLevel = (data.modules.satcom||0);
+  const shieldReduce = 0.01 * shieldLevel;
+  const satReduce = 0.01 * satLevel;
+  const lostChance = Math.max(0, shipDef.risk.lost - shieldReduce - (data.tokenUpgrades.safeShips||0)*0.02 - satReduce*0.5);
+  const damagedChance = Math.max(0, shipDef.risk.damaged - shieldReduce - satReduce*0.2);
+  const r = Math.random();
+  let outcome = 'intact';
+  if(r < lostChance) outcome = 'lost';
+  else if(r < lostChance + damagedChance) outcome = 'damaged';
+  const fluxReward = Math.round(rand(shipDef.rewardFlux[0], shipDef.rewardFlux[1]));
+  const partsReward = Math.round(rand(shipDef.rewardParts[0], shipDef.rewardParts[1]));
+  if(outcome === 'lost'){
+    inst.state = 'ruined';
+    const salvageFlux = Math.round(fluxReward * 0.05);
+    data.flux += salvageFlux;
+    addNotification(`${shipDef.name} was ruined`, 'red');
+    addLog(`${shipDef.name} (${inst.id}) ruined — salvaged ${salvageFlux} Flux`);
+    if(Math.random() < 0.02){ data.tokens += 1; addLog('Lucky salvage: +1 Token'); }
+    playSFX('return');
+  } else if(outcome === 'damaged'){
+    inst.state = 'needsRepair';
+    const f = Math.round(fluxReward * rand(0.25,0.6));
+    const p = Math.round(partsReward * rand(0.25,0.6));
+    data.flux += f; data.parts += p;
+    addNotification(`${shipDef.name} returned damaged`, 'yellow');
+    addLog(`${shipDef.name} (${inst.id}) returned damaged: +${f} Flux, +${p} Parts`);
+    if(Math.random() < 0.01){ data.tokens += 1; addLog('Found 1 Token during salvage!'); }
+    playSFX('return');
+  } else {
+    inst.state = 'docked';
+    data.flux += fluxReward; data.parts += partsReward;
+    addNotification(`${shipDef.name} returned — big haul!`, 'green');
+    addLog(`${shipDef.name} (${inst.id}) returned intact: +${fluxReward} Flux, +${partsReward} Parts`);
+    if(Math.random() < 0.03){ data.tokens += 1; addLog('Exploration bonus: +1 Token!'); }
+    playSFX('return');
+  }
+}
+
+/* ---------------------- Missions handling ---------------------- */
+function checkMissions(){
+  const nowTs = Date.now();
+  const completed = data.missions.filter(m => m.endTime <= nowTs);
+  if(completed.length){
+    completed.forEach(m=>{
+      const idx = data.missions.findIndex(x=>x.uid===m.uid);
+      if(idx !== -1) data.missions.splice(idx,1);
+      resolveMission(m);
+    });
+    updateAll(); saveGame();
+  }
+}
+
+/* process missions that finished when offline */
+function processPastMissions(){
+  const nowTs = Date.now();
+  const completed = data.missions.filter(m => m.endTime <= nowTs);
+  if(completed.length){
+    completed.forEach(m=>{
+      const idx = data.missions.findIndex(x=>x.uid===m.uid); if(idx!==-1) data.missions.splice(idx,1);
+      resolveMission(m);
+    });
+    saveGame(); updateAll();
+  }
+}
+
+/* ---------------------- Dock UI rendering (repair/scrap) ---------------------- */
+function renderDock(){
+  dockListEl.innerHTML = '';
+  if(data.ships.length === 0){
+    dockListEl.innerHTML = `<div class="muted-small">No ships owned. Buy some in the Shipyard.</div>`; return;
+  }
+  data.ships.forEach(inst=>{
+    const sdef = SHIPS.find(x=>x.id===inst.shipId);
+    const row = document.createElement('div'); row.className='dock-row';
+    const left = document.createElement('div'); left.style.display='flex'; left.style.gap='10px'; left.style.alignItems='center';
+    const icon = document.createElement('div'); icon.className='ship-icon'; icon.textContent = sdef.name.slice(0,2).toUpperCase();
+    left.appendChild(icon);
+    const meta = document.createElement('div'); meta.innerHTML = `<div style="font-weight:800">${sdef.name}</div><div class="muted-small">ID: ${inst.id}</div>`;
+    left.appendChild(meta);
+    const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px'; right.style.alignItems='center';
+    const pill = document.createElement('div'); pill.className='status-pill';
+    if(inst.state === 'docked'){ pill.textContent='Docked'; pill.style.background='linear-gradient(180deg,#bfffd6,#8effa3)'; }
+    else if(inst.state === 'away'){ pill.textContent='Away'; pill.style.background='linear-gradient(180deg,#fff1b7,#ffd86b)'; }
+    else if(inst.state === 'needsRepair'){ pill.textContent='Needs Repair'; pill.style.background='linear-gradient(180deg,#fff1b7,#ffd86b)'; }
+    else { pill.textContent='Ruined'; pill.style.background='linear-gradient(180deg,#ffd0d0,#ff8f8f)'; }
+    right.appendChild(pill);
+    if(inst.state === 'docked'){
+      const sendBtn = document.createElement('button'); sendBtn.className='btn-small'; sendBtn.textContent='Send';
+      sendBtn.addEventListener('click', ()=> sendShipInstance(inst.id));
+      right.appendChild(sendBtn);
+    } else if(inst.state === 'needsRepair'){
+      const sLvl = getShipTierIndex(inst.shipId);
+      const baseParts = Math.round((sLvl+1) * 30 + Math.random()*30);
+      const baseModules = Math.max(1, Math.round( (sLvl+1) * 0.5 ));
+      const repairBtn = document.createElement('button'); repairBtn.className='btn-small'; repairBtn.textContent=`Repair (${baseParts}P, ${baseModules}M)`;
+      repairBtn.addEventListener('click', ()=>{
+        const totalModules = Object.values(data.modules).reduce((a,b)=>a+b,0);
+        if(data.parts < baseParts || totalModules < baseModules){ alert('Not enough Parts or Modules to repair'); return; }
+        data.parts -= baseParts;
+        let need = baseModules;
+        const modKeys = Object.keys(data.modules).sort((a,b)=> data.modules[a] - data.modules[b]);
+        for(const mk of modKeys){
+          while(need>0 && data.modules[mk]>0){
+            data.modules[mk]--; need--;
+          }
+        }
+        inst.state = 'docked';
+        addLog(`Repaired ${sdef.name} (${inst.id}) for ${baseParts} Parts and ${baseModules} modules`);
+        updateAll(); saveGame();
+      });
+      right.appendChild(repairBtn);
+      const scrapBtn = document.createElement('button'); scrapBtn.className='btn-small'; scrapBtn.textContent='Scrap (cheap)';
+      scrapBtn.addEventListener('click', ()=>{
+        if(!confirm('Scrap this damaged ship for small parts/flux?')) return;
+        const scrapParts = Math.round(10 + Math.random()*25);
+        data.parts += scrapParts;
+        const idx = data.ships.findIndex(s=>s.id===inst.id);
+        if(idx!==-1) data.ships.splice(idx,1);
+        addLog(`Scrapped damaged ${sdef.name} (${inst.id}) for ${scrapParts} Parts`);
+        updateAll(); saveGame();
+      });
+      right.appendChild(scrapBtn);
+    } else if(inst.state === 'ruined'){
+      const scrapBtn = document.createElement('button'); scrapBtn.className='btn-small'; scrapBtn.textContent='Scrap';
+      scrapBtn.addEventListener('click', ()=>{
+        if(!confirm('Scrap ruined ship for parts?')) return;
+        const scrapParts = Math.round(5 + Math.random()*20);
+        data.parts += scrapParts;
+        const idx = data.ships.findIndex(s=>s.id===inst.id); if(idx!==-1) data.ships.splice(idx,1);
+        addLog(`Scrapped ruined ${sdef.name} (${inst.id}) for ${scrapParts} Parts`);
+        updateAll(); saveGame();
+      });
+      const repairBtn = document.createElement('button'); repairBtn.className='btn-small'; repairBtn.textContent='Repair (expensive)';
+      repairBtn.addEventListener('click', ()=>{
+        const repairCost = Math.round(200 + Math.random()*600);
+        if(data.parts < repairCost){ alert(`Repair costs ${repairCost} Parts. You don't have enough.`); return; }
+        if(!confirm(`Repair will cost ${repairCost} Parts. Proceed?`)) return;
+        data.parts -= repairCost; inst.state = 'docked';
+        addLog(`Repaired ruined ${sdef.name} (${inst.id}) for ${repairCost} Parts`);
+        updateAll(); saveGame();
+      });
+      right.appendChild(scrapBtn); right.appendChild(repairBtn);
+    }
+    row.appendChild(left); row.appendChild(right);
+    dockListEl.appendChild(row);
+  });
+}
+function getShipTierIndex(shipId){ return Math.max(0, SHIPS.findIndex(s=>s.id===shipId)); }
+
+/* ---------------------- Mini-games ---------------------- */
+/* Arcade (unchanged) */
+function openArcade(){
+  const html = `
+    <h2>Arcade Blitz — 10 seconds</h2>
+    <p class="small muted">Click as many targets as you can. Each hit gives Parts.</p>
+    <div id="arcadeArea" style="width:100%; height:260px; background:linear-gradient(180deg,#011824,#012a36); border-radius:10px; margin-top:8px; position:relative; overflow:hidden;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+      <div class="muted">Time: <span id="arcTime">10</span>s</div>
+      <div class="muted">Score: <span id="arcScore">0</span></div>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <button id="arcStart" class="btn-buy">Start</button>
+      <button id="arcQuit" class="btn-buy" style="background:linear-gradient(180deg,#ffb86b,#ffcf6b)">Quit</button>
+    </div>
+  `;
+  openModal(html, true);
+  const arcStart = modal.querySelector('#arcStart'), arcQuit = modal.querySelector('#arcQuit'), arcArea = modal.querySelector('#arcadeArea'), arcTimeEl = modal.querySelector('#arcTime'), arcScoreEl = modal.querySelector('#arcScore');
+  let arcadeTimer=null, timeLeft=10, score=0, playing=false, spawnInterval=null;
+  function spawnTarget(){
+    const w=arcArea.clientWidth, h=arcArea.clientHeight;
+    const t=document.createElement('div'); t.className='target'; const x=Math.max(10,Math.random()*(w-70)); const y=Math.max(10,Math.random()*(h-70));
+    t.style.left=x+'px'; t.style.top=y+'px'; t.style.position='absolute'; t.textContent=Math.floor(Math.random()*90)+10; arcArea.appendChild(t);
+    t.addEventListener('click', ()=>{ if(!playing) return; score++; arcScoreEl.textContent=score; makeSpark(x+30,y+30); playSFX('click'); if(t.parentNode) t.parentNode.removeChild(t); });
+    setTimeout(()=>{ if(t.parentNode) t.parentNode.removeChild(t); }, 1300);
+  }
+  function startArc(){ timeLeft=10; score=0; playing=true; arcScoreEl.textContent='0'; arcTimeEl.textContent='10'; spawnInterval=setInterval(()=>spawnTarget(),700); arcadeTimer=setInterval(()=>{ timeLeft--; arcTimeEl.textContent=timeLeft; if(timeLeft<=0) endArc(); },1000); }
+  function endArc(){ playing=false; clearInterval(arcadeTimer); clearInterval(spawnInterval); const baseParts = Math.round(score * (1 + (data.modules.arcade||0)*0.2)); data.parts += baseParts; addLog(`Arcade finished — Score ${score}, +${baseParts} Parts`); alert(`Arcade finished — Score ${score}\nYou earned ${baseParts} Parts!`); updateAll(); saveGame(); closeModal(); }
+  arcStart.addEventListener('click', ()=>{ if(!playing) startArc(); });
+  arcQuit.addEventListener('click', ()=>{ if(playing){ if(confirm('Quit the arcade? Progress will be lost.')){ playing=false; clearInterval(arcadeTimer); clearInterval(spawnInterval); closeModal(); } } else closeModal(); });
+}
+
+/* Asteroid Miner */
+function openAsteroid(){
+  const html = `<h2>Asteroid Miner — 8 seconds</h2><p class="small muted">Mine asteroids for Flux & Parts. Click quickly!</p><div id="asteroidArea" style="width:100%; height:240px; background:linear-gradient(180deg,#05121a,#082430); border-radius:10px; margin-top:8px; position:relative; overflow:hidden;"></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;"><div class="muted">Time: <span id="astTime">8</span>s</div><div class="muted">Score: <span id="astScore">0</span></div></div><div style="display:flex; gap:8px; margin-top:12px;"><button id="astStart" class="btn-buy">Start</button><button id="astQuit" class="btn-buy" style="background:linear-gradient(180deg,#ffb86b,#ffcf6b)">Quit</button></div>`;
+  openModal(html, true);
+  const area = modal.querySelector('#asteroidArea'), astTime = modal.querySelector('#astTime'), astScore = modal.querySelector('#astScore');
+  let timeLeft=8, score=0, playing=false, spawnI=null, timerI=null;
+  function spawnAst(){ const w=area.clientWidth,h=area.clientHeight; const a=document.createElement('div'); a.className='target'; a.style.width='48px'; a.style.height='48px'; const x=Math.max(10,Math.random()*(w-60)), y=Math.max(10,Math.random()*(h-60)); a.style.left=x+'px'; a.style.top=y+'px'; a.style.position='absolute'; a.textContent='◐'; area.appendChild(a); a.addEventListener('click', ()=>{ if(!playing) return; score++; astScore.textContent=score; const f=Math.round(rand(8,28)); const p=Math.round(rand(0,3)); data.flux+=f; data.parts+=p; makeSpark(x+24,y+24); playSFX('click'); if(a.parentNode) a.parentNode.removeChild(a); }); setTimeout(()=>{ if(a.parentNode) a.parentNode.removeChild(a); }, 1200); }
+  function start(){ timeLeft=8; score=0; playing=true; astScore.textContent='0'; astTime.textContent='8'; spawnI=setInterval(()=>spawnAst(),400); timerI=setInterval(()=>{ timeLeft--; astTime.textContent=timeLeft; if(timeLeft<=0) end(); },1000); }
+  function end(){ playing=false; clearInterval(spawnI); clearInterval(timerI); addLog(`Asteroid Miner finished — Score ${score}`); alert(`Asteroid Miner — Score ${score}`); updateAll(); saveGame(); closeModal(); }
+  modal.querySelector('#astStart').addEventListener('click', ()=> start());
+  modal.querySelector('#astQuit').addEventListener('click', ()=> { if(playing){ if(confirm('Quit? You will lose progress.')){ clearInterval(spawnI); clearInterval(timerI); closeModal(); } } else closeModal(); });
+}
+
+/* Comms Relay - reaction: up to 5000ms allowed, tiered reward */
+function openComms(){
+  const html = `<h2>Comms Relay — Reaction</h2><p class="small muted">Wait for the flash, then click quickly. Reaction &lt;500ms = best reward. Up to 5000ms gives smaller rewards.</p><div id="commsArea" style="width:100%; height:160px; background:linear-gradient(180deg,#031224,#052b3a); border-radius:10px; margin-top:8px; position:relative; display:flex; align-items:center; justify-content:center; color:var(--muted)">Press Start</div><div style="display:flex; gap:8px; margin-top:12px;"><button id="commsStart" class="btn-buy">Start</button><button id="commsQuit" class="btn-buy" style="background:linear-gradient(180deg,#ffb86b,#ffcf6b)">Quit</button></div>`;
+  openModal(html, true);
+  const area = modal.querySelector('#commsArea'); let playing=false; let timeoutId=null; let startTime=0; let clicked=false;
+  function flash(){
+    area.style.background='linear-gradient(180deg,#8effa3,#6ff0c3)'; startTime=Date.now(); clicked=false;
+    function clickHandler(e){
+      if(!playing) return;
+      const rt = Date.now() - startTime;
+      if(clicked) return;
+      clicked = true;
+      document.removeEventListener('click', clickHandler);
+      area.style.background='linear-gradient(180deg,#031224,#052b3a)';
+      playing = false;
+      // tiered rewards:
+      if(rt <= 500){
+        const p = Math.round(rand(8,20)); data.parts += p;
+        if(Math.random() < 0.12){ data.tokens += 1; addLog('Comms Relay: +1 Token (fast reaction)'); addNotification('Lucky Token!', 'green'); }
+        alert(`Amazing! ${rt}ms — +${p} Parts`);
+        addLog(`Comms Relay: reaction ${rt}ms (+${p}P)`);
+      } else if(rt <= 2000){
+        const p = Math.round(rand(4,10)); data.parts += p;
+        alert(`Nice! ${rt}ms — +${p} Parts`);
+        addLog(`Comms Relay: reaction ${rt}ms (+${p}P)`);
+      } else if(rt <= 5000){
+        const p = Math.round(rand(1,4)); data.parts += p;
+        alert(`Okay! ${rt}ms — +${p} Parts`);
+        addLog(`Comms Relay: reaction ${rt}ms (+${p}P)`);
+      } else {
+        alert(`Too slow (${rt}ms). No reward.`);
+        addLog(`Comms Relay: reaction ${rt}ms (no reward)`);
+      }
+      updateAll(); saveGame();
+      closeModal();
+    }
+    document.addEventListener('click', clickHandler);
+    // safety timeout: if not clicked within 5s, end
+    setTimeout(()=>{ if(!clicked){ document.removeEventListener('click', clickHandler); area.style.background='linear-gradient(180deg,#031224,#052b3a)'; playing=false; addLog('Comms Relay: no click (timeout)'); alert('Time up — no reward.'); closeModal(); } }, 5200);
+  }
+  modal.querySelector('#commsStart').addEventListener('click', ()=>{
+    if(playing) return;
+    playing = true; area.textContent = 'Wait for it...';
+    const delay = Math.round(rand(800, 3200)); // randomized wait
+    timeoutId = setTimeout(()=>{ area.textContent = 'CLICK!'; flash(); }, delay);
+  });
+  modal.querySelector('#commsQuit').addEventListener('click', ()=>{ if(timeoutId) clearTimeout(timeoutId); closeModal(); });
+}
+
+/* ---------------------- Large Expedition (send ALL ships) ---------------------- */
+function largeExpedition(){
+  const ownedDocked = data.ships.filter(s => s.state === 'docked' || s.state === 'needsRepair');
+  if(ownedDocked.length === 0){ alert('No ships available to send!'); return; }
+  if(!confirm(`Large Expedition will send ${ownedDocked.length} ships to a dangerous planet. Proceed?`)) return;
+  const expeditionId = uid('exp');
+  let anySent = false;
+  ownedDocked.forEach(inst=>{
+    if(inst.state === 'docked' || inst.state === 'needsRepair'){
+      const sdef = SHIPS.find(s=>s.id===inst.shipId);
+      const duration = Math.round(sdef.duration * (0.7 + Math.random()*0.8));
+      const mid = uid('m');
+      const mission = { uid: mid, instanceId: inst.id, shipId: inst.shipId, startedAt: Date.now(), endTime: Date.now() + duration*1000, expeditionId };
+      data.missions.push(mission);
+      inst.state = 'away';
+      anySent = true;
+    }
+  });
+  if(anySent){
+    addLog(`Large Expedition ${expeditionId} launched with ${ownedDocked.length} ships`);
+    addNotification('Large Expedition launched', 'yellow');
+    playSFX('expedition'); updateAll(); saveGame();
+  }
+}
+
+/* ---------------------- Export / Import ---------------------- */
+function exportSave(){
+  try{
+    const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
+    const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='orbital_outpost_save.json'; a.click(); URL.revokeObjectURL(url);
+    addLog('Exported save file');
+  }catch(e){ alert('Export failed'); }
+}
+function importSaveFile(file){
+  const r = new FileReader();
+  r.onload = ()=> {
+    try{
+      const parsed = JSON.parse(r.result);
+      if(parsed && typeof parsed.flux !== 'undefined'){
+        if(confirm('Importing will overwrite current local save. Continue?')){
+          data = Object.assign({}, defaultData, parsed);
+          data.modules = Object.assign({}, defaultData.modules, parsed.modules || {});
+          data.ships = parsed.ships || [];
+          data.missions = parsed.missions || [];
+          data.tokenUpgrades = Object.assign({}, defaultData.tokenUpgrades, parsed.tokenUpgrades || {});
+          saveGame(); buildAllUI(); addLog('Imported save file');
+        }
+      } else alert('File does not appear to be a valid save.');
+    }catch(e){ alert('Failed to read file: ' + e); }
+  };
+  r.readAsText(file);
+}
+document.getElementById('btnExport').addEventListener('click', exportSave);
+document.getElementById('btnImport').addEventListener('click', ()=>{ const input=document.createElement('input'); input.type='file'; input.accept='.json,application/json'; input.onchange=()=>{ if(input.files && input.files[0]) importSaveFile(input.files[0]); }; input.click(); });
+document.getElementById('quickExport').addEventListener('click', exportSave);
+document.getElementById('quickImport').addEventListener('click', ()=>{ const input=document.createElement('input'); input.type='file'; input.accept='.json,application/json'; input.onchange=()=>{ if(input.files && input.files[0]) importSaveFile(input.files[0]); }; input.click(); });
+
+/* ---------------------- Name handling & welcome modal (fixed) ---------------------- */
+document.getElementById('btnSaveName').addEventListener('click', ()=>{
+  const v = playerNameInput.value.trim();
+  if(v.length > 20){ alert('Name too long (20 chars max)'); return; }
+  data.name = v;
+  saveGame(); updateDisplays(); addLog('Name set to ' + (v||'(blank)'));
+});
+document.getElementById('btnClearName').addEventListener('click', ()=>{ data.name=''; playerNameInput.value=''; saveGame(); updateDisplays(); addLog('Name cleared'); });
+
+function openNamePromptIfNeeded(){
+  if(data.name) return;
+  const html = `<h2>Welcome Commander</h2><p class="small muted">First, choose a commander name</p><input id="modalName" type="text" placeholder="E.g. Jax, Nova, Jade" style="margin-top:8px"/><div style="display:flex; gap:8px; margin-top:12px;"><button id="modalSave" class="btn-buy">Save</button><button id="modalSkip" class="btn-buy" style="background:linear-gradient(180deg,#ffcf6b,#ffd86b)">Skip</button></div>`;
+  openModal(html, false);
+  const modalName = modal.querySelector('#modalName'), modalSave = modal.querySelector('#modalSave'), modalSkip = modal.querySelector('#modalSkip');
+  if(modalName) modalName.focus();
+  modalSave.addEventListener('click', ()=>{
+    const v = (modalName.value||'').trim().slice(0,20);
+    data.name = v;
+    updateAll(); saveGame(); closeModal();
+    addLog('Name saved: ' + (data.name||'(blank)'));
+  });
+  modalSkip.addEventListener('click', ()=>{
+    data.name = '';
+    updateAll(); saveGame(); closeModal();
+    addLog('Name skipped');
+  });
+}
+
+/* ---------------------- Visual feedback and button behaviors ---------------------- */
+let firstInteraction=false;
+fluxButton.addEventListener('click', (ev)=>{
+  if(!firstInteraction){ firstInteraction=true; try{ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); }catch(e){}; startAmbient(); }
+  gainFlux(data.fluxPerClick);
+  const playRect = document.querySelector('.play-area').getBoundingClientRect();
+  makeSpark(ev.clientX - playRect.left, ev.clientY - playRect.top);
+  playSFX('click');
+});
+
+/* flash missing */
+function flashMissing(){ const el = fluxDisplay; const old = el.style.transition; el.style.transition='transform .08s ease'; el.style.transform='scale(1.06)'; setTimeout(()=>{ el.style.transform='scale(1)'; el.style.transition=old; },120); playSFX('click'); }
+
+/* ---------------------- Modal helpers ---------------------- */
+function openModal(htmlContent, closable=true){
+  modalBackdrop.style.display = 'flex'; modal.innerHTML = htmlContent; modalBackdrop.setAttribute('aria-hidden','false');
+  if(closable) modalBackdrop.addEventListener('click', backdropClose);
+  else modalBackdrop.removeEventListener('click', backdropClose);
+}
+function backdropClose(e){ if(e.target === modalBackdrop) closeModal(); }
+function closeModal(){ modalBackdrop.style.display = 'none'; modal.innerHTML = ''; modalBackdrop.setAttribute('aria-hidden','true'); modalBackdrop.removeEventListener('click', backdropClose); }
+
+/* ---------------------- Build full UI & update displays ---------------------- */
+function buildAllUI(){
+  buildBaseShop(); buildShipShop(); buildTokenShop(); recalcProduction(); updateDisplays(); renderDock();
+}
+function updateDisplays(){
+  fluxDisplay.textContent = format(Math.floor(data.flux));
+  perClickDisplay.textContent = (Math.round((data.fluxPerClick||1)*100)/100);
+  perSecDisplay.textContent = (data.fluxPerSec||0);
+  modulesCount.textContent = Object.values(data.modules).reduce((a,b)=>a+b,0);
+  partsCount.textContent = format(Math.floor(data.parts));
+  tokensCount.textContent = format(Math.floor(data.tokens));
+  MODULES.forEach(m=>{ const lvlEl = document.getElementById('lvl-'+m.id); if(lvlEl) lvlEl.textContent = data.modules[m.id]||0; const costEl = document.getElementById('cost-'+m.id); if(costEl) costEl.textContent = format(moduleCost(m.id)); const buyBtn = document.getElementById('buy-'+m.id); if(buyBtn) buyBtn.disabled = data.flux < moduleCost(m.id); });
+  SHIPS.forEach(s=>{ const ownEl = document.getElementById('own-'+s.id); if(ownEl) ownEl.textContent = data.ships.filter(x=>x.shipId===s.id && x.state!=='ruined').length; const buyBtn = document.getElementById('buyship-'+s.id); if(buyBtn) buyBtn.disabled = data.parts < (s.costParts||0) || data.tokens < (s.costTokens||0); const sendBtn = document.getElementById('send-'+s.id); if(sendBtn){ const has = data.ships.find(x=>x.shipId===s.id && x.state==='docked'); sendBtn.disabled = !has; } });
+  // token levels update
+  const tokenKeys = Object.keys(data.tokenUpgrades);
+  tokenKeys.forEach(k=>{ const el = document.getElementById('t-'+k); if(el) el.textContent = data.tokenUpgrades[k]||0; });
+  playerNameDisplay.textContent = data.name ? `Commander ${data.name}` : 'Welcome, Commander';
+  playerNameInput.value = data.name || '';
+  renderDock();
+}
+
+function updateAll(){ recalcProduction(); buildBaseShop(); buildShipShop(); buildTokenShop(); updateDisplays(); renderDock(); }
+
+/* ---------------------- Debounce save ---------------------- */
+let saveTimer = null;
+function debounceSave(){
+  document.getElementById('autosaveIndicator').textContent = 'Saving...';
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ saveGame(); saveTimer = null; }, 800);
+}
+
+/* ---------------------- Periodic ticks ---------------------- */
+setInterval(()=>{ // passive generation tick
+  if(data.fluxPerSec && data.fluxPerSec > 0){ data.flux += data.fluxPerSec; updateDisplays(); if((data.modules.rabbit||0) > 0 && Math.random() < 0.02 * (data.modules.rabbit||0)){ const bonus = Math.round(15 + Math.random()*60); data.flux += bonus; addLog('Random burst from Rabbit Hole: +' + bonus + ' Flux'); addNotification('Rabbit hole bonus: +' + bonus + ' Flux', bonus>80?'green':bonus>25?'yellow':'red'); makeSpark(rand(40,220), rand(40,200)); } }
+}, 1000);
+setInterval(()=>{ saveGame(); }, AUTO_SAVE_INTERVAL_MS); // autosave every 6s
+setInterval(()=>{ checkMissions(); }, 1000);
+
+/* ---------------------- Process offline missions & start if no lesson time ---------------------- */
+
+function resumeGameInit() {
+  processPastMissions();
+  buildAllUI();
+  openNamePromptIfNeeded();
+  addLog("Game loaded (fixed)");
+}
+
+window.addEventListener("load", () => {
+  if (!window.stopGameBlocked) {
+    resumeGameInit();
+  } else {
+    console.log("Game start blocked due to lesson time.");
+  }
+});
+
+/* ---------------------- UI hooks for mini-games & actions ---------------------- */
+document.getElementById('btnPlayMini').addEventListener('click', ()=> openArcade());
+document.getElementById('btnAsteroid').addEventListener('click', ()=> openAsteroid());
+document.getElementById('btnComms').addEventListener('click', ()=> openComms());
+document.getElementById('btnLargeExp').addEventListener('click', ()=> { if(confirm('Launch Large Expedition? This sends all ships. Proceed?')) largeExpedition(); });
+document.getElementById('btnReset').addEventListener('click', ()=> resetSave());
+
+/* Shop tabs */
+const tabBase = document.getElementById('tabBase'), tabShip = document.getElementById('tabShip'), tabToken = document.getElementById('tabToken');
+tabBase.addEventListener('click', ()=>{ tabBase.classList.add('active'); tabShip.classList.remove('active'); tabToken.classList.remove('active'); baseShopEl.style.display='block'; shipShopEl.style.display='none'; tokenShopEl.style.display='none'; });
+tabShip.addEventListener('click', ()=>{ tabShip.classList.add('active'); tabBase.classList.remove('active'); tabToken.classList.remove('active'); baseShopEl.style.display='none'; shipShopEl.style.display='block'; tokenShopEl.style.display='none'; });
+tabToken.addEventListener('click', ()=>{ tabToken.classList.add('active'); tabBase.classList.remove('active'); tabShip.classList.remove('active'); baseShopEl.style.display='none'; shipShopEl.style.display='none'; tokenShopEl.style.display='block'; });
+
+/* Export/import buttons already bound earlier in code; quick export/import bound */
+document.getElementById('quickExport').addEventListener('click', exportSave);
+document.getElementById('quickImport').addEventListener('click', ()=>{ const input=document.createElement('input'); input.type='file'; input.accept='.json,application/json'; input.onchange=()=>{ if(input.files && input.files[0]) importSaveFile(input.files[0]); }; input.click(); });
+
+/* ---------------------- Helper: showNotification wrapper for compatibility ---------------------- */
+function addNotificationSafe(text, severity='green'){ addNotification(text, severity); }
+
+/* ---------------------- End of script ---------------------- */
+</script>
+</body>
+</html>
