@@ -2,7 +2,7 @@
 
 <!-- LOGO PLACEHOLDER -->
 <p align="center">
-  <img src="INSERT_LOGO_PATH_HERE" alt="Game Centre Logo" width="200">
+  <img src="https://github.com/SmartSparkCoding/jacob-s-game-centre/blob/main/MAIN%20LOGO.jpg" alt="Game Centre Logo" width="200">
 </p>
 
 ## Overview
