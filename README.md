@@ -11,22 +11,16 @@
 It delivers a polished, app‑like experience with smooth animations, a cosmetic account system, dynamic layouts, and a clean, modern interface.
 
 The project is intentionally simple and dependency‑free, built using only **HTML**, **CSS**, and **JavaScript**.  
-It is split into **two main files**:
+It is split into **two main file groups**:
 
-- `index.html` — the Game Centre hub (UI, account system, game launcher, locking logic)  
-- `games/` — a folder containing individual HTML game files (each game runs independently)
+- `index.html` — the Game Centre hub (UI, game launcher, locking logic)  
+- `OTHER FILES` — contains individual HTML game files (each game runs independently)
 
 This structure keeps the hub clean while allowing unlimited games to be added.
 
 ---
 
 ## ✨ Features
-
-### 🔐 Cosmetic Local Account System
-- On first launch, users are prompted to enter a display name.
-- The name is saved in `localStorage` and shown at the top as **“Welcome NAME”**.
-- Clicking the welcome text reopens the name prompt, allowing the user to change their name at any time.
-- No backend or authentication — purely cosmetic and stored locally.
 
 ### 🎬 Custom Loading Animation
 - Displays a large version of the Game Centre icon.
@@ -61,4 +55,47 @@ This structure keeps the hub clean while allowing unlimited games to be added.
 
 ---
 
-## 📁 Project Structure
+## 🧠 Technologies Used
+
+- **HTML5** — structure and game embedding - Scratch games are converted to HTML5 format 
+- **CSS3** — responsive grid, animations, UI styling  
+- **JavaScript** — account system, locking logic, transitions, localStorage  
+
+No frameworks. No build tools. No dependencies.
+
+---
+
+## 🚀 How It Works
+
+1. **User opens the app**  
+   → Loading animation plays  
+   → “Created and Designed by Jacob N” fades in  
+
+2. **Home screen loads**  
+   → Responsive grid of games  
+   → “Welcome NAME” appears at the top  
+
+3. **User selects a game**  
+   → Game loads in full‑screen viewer  
+   → Back button returns to hub  
+
+4. **Lesson-time logic**  
+   → If current GMT time is inside a blocked window, the app locks  
+   → Override code can unlock it  
+
+---
+
+## 📜 License
+
+This project is released under the **MIT License**.  
+You are free to modify, distribute, and use it in your own projects.
+
+---
+
+## 🙌 Credits
+
+**Created and Designed by Jacob N**  
+Additional credits to friends who created or converted the included games can be found under each game.
+Further thanks to the **Turbo Warp Packager** Team who created the Scratch to HTML converter. You can find a link to their GitHub <a href="https://github.com/TurboWarp/packager" target="_blank">Here</a>
+
+---
