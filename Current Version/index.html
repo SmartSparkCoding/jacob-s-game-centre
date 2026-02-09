@@ -431,6 +431,8 @@ window.onload = function() {
 
 /* Open Game */
 function openGame(file) {
+    sessionStorage.setItem("gc_verified", "yes");
+    
     document.getElementById("game-select").style.display = "none";
     document.getElementById("game-viewer").style.display = "block";
     document.getElementById("game-frame").src = file;
@@ -451,4 +453,5 @@ function goBack() {
 </script>
 </body>
 </html>
+
 
