@@ -1,0 +1,234 @@
+<script>
+if (!sessionStorage.getItem("gc_verified")) {
+    document.write(`
+        <div style="font-family:Arial;text-align:center;margin-top:20vh;">
+            <h1>Access Blocked</h1>
+            <p>You must open this game through the Game Centre.</p>
+        </div>
+    `);
+    window.stop();
+}
+</script>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Drift Runner (Local Save)</title>
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            margin: 20px auto;
+            width: 400px;
+            height: 600px;
+            background: #222;
+            border: 3px solid #555;
+            overflow: hidden;
+        }
+
+        #road {
+            position: absolute;
+            width: 200px;
+            height: 100%;
+            background: #333;
+            left: 100px;
+            top: 0;
+        }
+
+        .edge {
+            position: absolute;
+            width: 10px;
+            height: 100%;
+            background: #666;
+            top: 0;
+        }
+
+        #leftEdge { left: 0; }
+        #rightEdge { right: 0; }
+
+        #car {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            background: #0f9;
+            bottom: 80px;
+            left: 180px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px #0f9;
+        }
+
+        #score, #highScore {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        #message {
+            margin-top: 5px;
+            font-size: 16px;
+            color: #ccc;
+        }
+
+        #restartBtn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 16px;
+            border: none;
+            background: #0f9;
+            color: #000;
+            cursor: pointer;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Drift Runner</h1>
+<div id="score">Score: 0</div>
+<div id="highScore">High Score: 0</div>
+<div id="message">Press SPACE or CLICK to drift!</div>
+<button id="restartBtn">Restart</button>
+
+<div id="gameContainer">
+    <div id="road">
+        <div id="leftEdge" class="edge"></div>
+        <div id="rightEdge" class="edge"></div>
+    </div>
+    <div id="car"></div>
+</div>
+
+<script>
+    const gameContainer = document.getElementById("gameContainer");
+    const road = document.getElementById("road");
+    const car = document.getElementById("car");
+    const scoreEl = document.getElementById("score");
+    const highScoreEl = document.getElementById("highScore");
+    const messageEl = document.getElementById("message");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let running = false;
+    let score = 0;
+    let lastTime = 0;
+
+    let highScore = localStorage.getItem("driftHighScore");
+    if (!highScore) highScore = 0;
+    highScoreEl.textContent = "High Score: " + highScore;
+
+    let carX = 180;
+    let direction = 1;
+    let roadOffsetX = 100;
+    let speed = 0.12;
+    let driftSpeed = 0.18;
+
+    function resetGame() {
+        running = false;
+        score = 0;
+        scoreEl.textContent = "Score: 0";
+        messageEl.textContent = "Press SPACE or CLICK to drift!";
+        restartBtn.style.display = "none";
+
+        carX = 180;
+        direction = 1;
+        roadOffsetX = 100;
+        speed = 0.12;
+        driftSpeed = 0.18;
+
+        road.style.left = roadOffsetX + "px";
+        car.style.left = carX + "px";
+    }
+
+    function startGame() {
+        if (running) return;
+        running = true;
+        lastTime = performance.now();
+        messageEl.textContent = "Stay on the road!";
+        requestAnimationFrame(gameLoop);
+    }
+
+    function toggleDirection() {
+        if (!running) startGame();
+        direction *= -1;
+    }
+
+    function gameLoop(timestamp) {
+        if (!running) return;
+
+        const delta = timestamp - lastTime;
+        lastTime = timestamp;
+
+        score += delta * 0.01;
+        scoreEl.textContent = "Score: " + Math.floor(score);
+
+        speed += delta * 0.000002;
+        driftSpeed += delta * 0.000002;
+
+        const roadWidth = 200;
+        const containerWidth = 400;
+
+        roadOffsetX += driftSpeed * direction * delta;
+
+        if (roadOffsetX < 40) {
+            roadOffsetX = 40;
+            direction = 1;
+        }
+        if (roadOffsetX > containerWidth - roadWidth - 40) {
+            roadOffsetX = containerWidth - roadWidth - 40;
+            direction = -1;
+        }
+
+        road.style.left = roadOffsetX + "px";
+
+        const carRect = car.getBoundingClientRect();
+        const roadRect = road.getBoundingClientRect();
+        const carCenterX = carRect.left + carRect.width / 2;
+
+        if (carCenterX < roadRect.left || carCenterX > roadRect.right) {
+            gameOver();
+            return;
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function gameOver() {
+        running = false;
+
+        const finalScore = Math.floor(score);
+
+        if (finalScore > highScore) {
+            highScore = finalScore;
+            localStorage.setItem("driftHighScore", highScore);
+            highScoreEl.textContent = "High Score: " + highScore;
+        }
+
+        messageEl.textContent = "You fell off! Final score: " + finalScore;
+        restartBtn.style.display = "inline-block";
+    }
+
+    window.addEventListener("keydown", (e) => {
+        if (e.code === "Space") {
+            e.preventDefault();
+            toggleDirection();
+        }
+    });
+
+    gameContainer.addEventListener("click", () => {
+        toggleDirection();
+    });
+
+    restartBtn.addEventListener("click", resetGame);
+
+    resetGame();
+</script>
+
+</body>
+</html>
