@@ -1,9 +1,11 @@
-# Game Centre
+# Jacob's Game Centre
 
 <!-- LOGO PLACEHOLDER -->
 <p align="center">
   <img src="https://github.com/SmartSparkCoding/jacob-s-game-centre/blob/main/MAIN%20LOGO.jpg" alt="Game Centre Logo" width="200">
 </p>
+
+<a href="https://jacob-s-game-centre.pages.dev" alt="Link to Website">Click here for my Website</a>
 
 ## Overview
 
