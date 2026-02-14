@@ -68,6 +68,31 @@
         align-items: start;
     }
 
+    /* Filter bar */
+    #filter-bar {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+    }
+
+    #filter-bar select, #filter-bar button {
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid #bbb;
+        background: white;
+        font-size: 14px;
+    }
+
+    #filter-bar button {
+        cursor: pointer;
+        background: #333;
+        color: white;
+        border: none;
+    }
+
     .game-card {
         width: auto;
         background: white;
@@ -78,6 +103,9 @@
         transition: transform 0.25s ease, box-shadow 0.25s ease;
         cursor: pointer;
         justify-self: stretch;
+        position: relative;
+        overflow: visible;
+        border: 2px solid transparent;
     }
 
     .game-card:hover {
@@ -88,6 +116,45 @@
     .game-card img {
         width: 100%;
         border-radius: 10px;
+    }
+
+    /* Favourite star button (top-right of each card) */
+    .fav-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 34px;
+        height: 34px;
+        border-radius: 6px;
+        background: rgba(255,255,255,0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        z-index: 5;
+    }
+
+    .fav-btn svg {
+        width: 18px;
+        height: 18px;
+        fill: #bbb;
+        transition: fill 0.15s ease, transform 0.15s ease;
+    }
+
+    .fav-btn.favourited {
+        background: rgba(255,250,230,0.98);
+        border-color: gold;
+    }
+
+    .fav-btn.favourited svg {
+        fill: gold;
+        transform: scale(1.05);
+    }
+
+    /* Favourite card outline */
+    .game-card.favourite {
+        border-color: gold;
     }
 
     /* Game Viewer */
@@ -177,6 +244,11 @@
     #override-btn:hover {
         background: #555;
     }
+
+    /* Responsive tweaks */
+    @media (max-width: 520px) {
+        #filter-bar { padding: 0 12px; }
+    }
 </style>
 </head>
 <body>
@@ -196,73 +268,137 @@
 <div id="game-select">
     <h1 style="grid-column: 1 / -1;">Game Centre</h1>
 
-    <div class="game-card" onclick="openGame('slimeshooter.html')">
+    <!-- Filter bar: choose creator, program, type -->
+    <div id="filter-bar" style="grid-column: 1 / -1;">
+        <select id="filter-creator">
+            <option value="">All Creators</option>
+        </select>
+        <select id="filter-program">
+            <option value="">All Programs</option>
+        </select>
+        <select id="filter-type">
+            <option value="">All Types</option>
+        </select>
+        <button id="clear-filters">Clear Filters</button>
+    </div>
+
+    <!--
+      HOW TO ADD A NEW GAME:
+      1. Copy one of the existing <div class="game-card" ...> blocks below.
+      2. Edit the onclick openGame('yourfile.html') to point to the game's HTML file.
+      3. Update the <img src="..."> and <h2> title.
+      4. IMPORTANT: set these data attributes on the .game-card element:
+         - data-creator="Creator Name"
+         - data-program="Program Name"   (e.g., "Scratch", "HTML", "TurboWarp")
+         - data-type="Game Type"         (e.g., "Shooter", "Platformer", "Puzzle")
+      Example:
+      <div class="game-card" onclick="openGame('newgame.html')"
+           data-creator="Jane Doe" data-program="HTML" data-type="Puzzle">
+    -->
+
+    <div class="game-card" onclick="openGame('slimeshooter.html')" data-creator="Tristan P" data-program="Scratch" data-type="Shooter">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="slime_shooter.jpg" alt="Slime Shooter">
         <h2>Slime Shooter</h2>
         <p>Created by Tristan P<br>Designed in Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('orbitaloutpost.html')">
+    <div class="game-card" onclick="openGame('orbitaloutpost.html')" data-creator="Jacob N" data-program="HTML" data-type="Strategy">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="orbital_outpost.jpg" alt="Slime Shooter">
         <h2>Orbital Outpost</h2>
         <p>Created by Jacob N<br>Created Locally in HTML</p>
     </div>
 
-    <div class="game-card" onclick="openGame('basketballshooter.html')">
+    <div class="game-card" onclick="openGame('basketballshooter.html')" data-creator="Will R" data-program="HTML" data-type="Sports">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="basketball_shooter.jpg" alt="Basketball Shooter">
         <h2>Basketball Shooter</h2>
         <p>Created by Will R<br>Created Locally in HTML</p>
     </div>
 
-    <div class="game-card" onclick="openGame('driftrunner.html')">
+    <div class="game-card" onclick="openGame('driftrunner.html')" data-creator="Will R" data-program="HTML" data-type="Racing">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="drift_runner.jpg" alt="Drift Runner">
         <h2>Drift Runner</h2>
         <p>Created by Will R<br>Created Locally in HTML</p>
     </div>
 
-    <div class="game-card" onclick="openGame('geometrydash.html')">
+    <div class="game-card" onclick="openGame('geometrydash.html')" data-creator="Pearcek15" data-program="Scratch" data-type="Platformer">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="geometry_dash.jpg" alt="Geometry Dash">
         <h2>Geometry Dash - Scratch Version</h2>
         <p>Created by Pearcek15 on Scratch<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('balloonrush.html')">
+    <div class="game-card" onclick="openGame('balloonrush.html')" data-creator="William L" data-program="Scratch" data-type="Arcade">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="balloon_rush.jpg" alt="Balloon Rush">
         <h2>Balloon Rush</h2>
         <p>Created by William L<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('mariokartdsremastered.html')">
+    <div class="game-card" onclick="openGame('mariokartdsremastered.html')" data-creator="FantasticDolphin44" data-program="Scratch" data-type="Racing">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="mario_kart.jpg" alt="Mario Kart DS">
         <h2>Mario Kart DS Remastered</h2>
         <p>Created by FantasticDolphin44<br>Converted to HTML from Scratch (70FPS)</p>
     </div>
 
-    <div class="game-card" onclick="openGame('tacoclicker.html')">
+    <div class="game-card" onclick="openGame('tacoclicker.html')" data-creator="Tristan P" data-program="Scratch" data-type="Clicker">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="taco_clicker.jpg" alt="Taco Clicker">
         <h2>Taco Clicker</h2>
         <p>Created by Tristan P<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('paperminecraft.html')">
+    <div class="game-card" onclick="openGame('paperminecraft.html')" data-creator="Griffpatch" data-program="Scratch" data-type="Adventure">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="paper_minecraft.jpg" alt="Paper Minecraft">
         <h2>Paper Minecraft</h2>
         <p>Created by Griffpatch on Scratch<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('boxbrothers.html')">
+    <div class="game-card" onclick="openGame('boxbrothers.html')" data-creator="IngsheKingKarl" data-program="Scratch" data-type="Platformer">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="box_brothers.jpg" alt="Box Brothers">
         <h2>Box Brothers</h2>
         <p>Created by IngsheKingKarl on Scratch<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('suika.html')">
+    <div class="game-card" onclick="openGame('suika.html')" data-creator="-SolarCode-" data-program="TurboWarp" data-type="Puzzle">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="suika.jpg" alt="Suika Watermelon Clone">
         <h2>Suika | Watermelon Game</h2>
         <p>Cloned by -SolarCode- on TurboWarp<br>Converted to HTML from TurboWarp</p>
     </div>
 
-    <div class="game-card" onclick="openGame('blockblast.html')">
+    <div class="game-card" onclick="openGame('blockblast.html')" data-creator="Juicity" data-program="Scratch" data-type="Arcade">
+        <div class="fav-btn" onclick="toggleFavourite(event, this)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
+        </div>
         <img src="block_blast.jpg" alt="Block Blast Clone">
         <h2>Block Blast Clone</h2>
         <p>Cloned by Juicity on Scratch<br>Converted to HTML from Scratch</p>
@@ -434,6 +570,9 @@ window.onload = function() {
                         gameSelect.style.display = "grid";
                         // Show the small top-left icon on the main home page
                         homeIcon.style.display = "block";
+
+                        // Initialize favourites and filters after UI is visible
+                        initFavouritesAndFilters();
                     }, loadingFadeDuration);
                 }, textVisibleDuration);
             }, textShowDelay);
@@ -462,9 +601,196 @@ function goBack() {
     document.getElementById("home-icon").style.display = "block";
 }
 
+/* -----------------------------
+   FAVOURITES & FILTERS SECTION
+   ----------------------------- */
+
+/* Local storage key for favourites */
+const FAV_KEY = "gc_favourites_v1";
+
+/* Toggle favourite when star clicked.
+   event: click event (we stop propagation so the card onclick doesn't fire)
+   btn: the .fav-btn element clicked
+*/
+function toggleFavourite(event, btn) {
+    event.stopPropagation();
+    const card = btn.closest(".game-card");
+    const id = getCardId(card);
+
+    let favs = loadFavourites();
+    const idx = favs.indexOf(id);
+    if (idx === -1) {
+        favs.push(id);
+    } else {
+        favs.splice(idx, 1);
+    }
+    saveFavourites(favs);
+    applyFavouritesToCards();
+    reorderCards();
+}
+
+/* Create a stable id for a card based on title and creator (safe for local use) */
+function getCardId(card) {
+    const title = (card.querySelector("h2")?.innerText || "").trim();
+    const creator = card.getAttribute("data-creator") || "";
+    return (title + "||" + creator).replace(/\s+/g, "_");
+}
+
+function loadFavourites() {
+    try {
+        const raw = localStorage.getItem(FAV_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveFavourites(arr) {
+    try {
+        localStorage.setItem(FAV_KEY, JSON.stringify(arr));
+    } catch (e) {
+        console.warn("Could not save favourites", e);
+    }
+}
+
+/* Apply favourite classes to cards and star buttons */
+function applyFavouritesToCards() {
+    const favs = loadFavourites();
+    document.querySelectorAll(".game-card").forEach(card => {
+        const id = getCardId(card);
+        if (favs.indexOf(id) !== -1) {
+            card.classList.add("favourite");
+            const btn = card.querySelector(".fav-btn");
+            if (btn) btn.classList.add("favourited");
+        } else {
+            card.classList.remove("favourite");
+            const btn = card.querySelector(".fav-btn");
+            if (btn) btn.classList.remove("favourited");
+        }
+    });
+}
+
+/* Reorder cards so favourites appear first (but keep relative order otherwise).
+   This function preserves the filtered set: it reorders only visible cards.
+*/
+function reorderCards() {
+    const container = document.getElementById("game-select");
+    const cards = Array.from(container.querySelectorAll(".game-card"));
+    // Keep the filter bar and heading in place; we only reorder the cards themselves.
+    const favs = loadFavourites();
+
+    // Separate visible cards (display != none) and reorder them
+    const visibleCards = cards.filter(c => c.style.display !== "none");
+    const hiddenCards = cards.filter(c => c.style.display === "none");
+
+    visibleCards.sort((a, b) => {
+        const aFav = favs.indexOf(getCardId(a)) !== -1;
+        const bFav = favs.indexOf(getCardId(b)) !== -1;
+        if (aFav === bFav) return 0;
+        return aFav ? -1 : 1;
+    });
+
+    // Remove existing cards from DOM and re-append in new order after the filter bar
+    visibleCards.forEach(c => container.appendChild(c));
+    hiddenCards.forEach(c => container.appendChild(c));
+}
+
+/* Initialize filters: populate selects with unique values and wire up events */
+function initFilters() {
+    const creatorSelect = document.getElementById("filter-creator");
+    const programSelect = document.getElementById("filter-program");
+    const typeSelect = document.getElementById("filter-type");
+    const clearBtn = document.getElementById("clear-filters");
+
+    const cards = Array.from(document.querySelectorAll(".game-card"));
+
+    const creators = new Set();
+    const programs = new Set();
+    const types = new Set();
+
+    cards.forEach(c => {
+        const cr = c.getAttribute("data-creator") || "";
+        const pr = c.getAttribute("data-program") || "";
+        const ty = c.getAttribute("data-type") || "";
+        if (cr) creators.add(cr);
+        if (pr) programs.add(pr);
+        if (ty) types.add(ty);
+    });
+
+    // Helper to add options
+    function addOptions(select, items) {
+        // keep the first option (All ...) and then add
+        items.forEach(it => {
+            const opt = document.createElement("option");
+            opt.value = it;
+            opt.innerText = it;
+            select.appendChild(opt);
+        });
+    }
+
+    addOptions(creatorSelect, Array.from(creators).sort());
+    addOptions(programSelect, Array.from(programs).sort());
+    addOptions(typeSelect, Array.from(types).sort());
+
+    // Event listeners
+    [creatorSelect, programSelect, typeSelect].forEach(sel => {
+        sel.addEventListener("change", applyFilters);
+    });
+
+    clearBtn.addEventListener("click", () => {
+        creatorSelect.value = "";
+        programSelect.value = "";
+        typeSelect.value = "";
+        applyFilters();
+    });
+}
+
+/* Apply filters to show/hide cards */
+function applyFilters() {
+    const creator = document.getElementById("filter-creator").value;
+    const program = document.getElementById("filter-program").value;
+    const type = document.getElementById("filter-type").value;
+
+    document.querySelectorAll(".game-card").forEach(card => {
+        const cr = card.getAttribute("data-creator") || "";
+        const pr = card.getAttribute("data-program") || "";
+        const ty = card.getAttribute("data-type") || "";
+
+        let visible = true;
+        if (creator && cr !== creator) visible = false;
+        if (program && pr !== program) visible = false;
+        if (type && ty !== type) visible = false;
+
+        card.style.display = visible ? "" : "none";
+    });
+
+    // After filtering, reorder so favourites among the filtered set appear first
+    reorderCards();
+}
+
+/* Initialize favourites and filters on load */
+function initFavouritesAndFilters() {
+    // Prevent the card onclick from firing when clicking the star: handled in toggleFavourite
+    document.querySelectorAll(".fav-btn").forEach(btn => {
+        // ensure pointer events are enabled; onclick attribute already set on each button
+        btn.addEventListener("click", (e) => {
+            // handled by inline onclick toggleFavourite; this ensures propagation is stopped if needed
+            e.stopPropagation();
+        });
+    });
+
+    applyFavouritesToCards();
+    initFilters();
+    reorderCards();
+}
+
+/* Ensure clicking the card still opens the game even if clicking inside the card (but not the star) */
+document.addEventListener("click", function(e) {
+    // No global handling needed; each card has onclick openGame already.
+});
+
+/* End of favourites & filters section */
+
 </script>
 </body>
 </html>
-
-
-
