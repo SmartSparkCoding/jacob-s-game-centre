@@ -8,6 +8,7 @@
 ## Overview
 
 **Game Centre** is a lightweight, responsive, browser‑based hub for launching locally hosted HTML games.  
+Workes completely on the web thanks to **Cloudflare Pages**!
 It delivers a polished, app‑like experience with smooth animations, a cosmetic account system, dynamic layouts, and a clean, modern interface.
 
 The project is intentionally simple and dependency‑free, built using only **HTML**, **CSS**, and **JavaScript**.  
