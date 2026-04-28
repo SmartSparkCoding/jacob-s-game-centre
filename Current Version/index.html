@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="game_centre_icon.ico" type="image/x-icon">
-<title>Game Centre</title>
+<link rel="icon" href="fun_centre_icon.ico" type="image/x-icon">
+<title>Fun Centre</title>
 <style>
     body {
         margin: 0;
@@ -58,8 +58,8 @@
         text-align: center;
     }
 
-    /* Game Selection Grid */
-    #game-select {
+    /*  Selection Grid */
+    #fun-select {
         display: none;
         padding: 40px;
         text-align: center;
@@ -93,7 +93,7 @@
         border: none;
     }
 
-    .game-card {
+    .fun-card {
         width: auto;
         background: white;
         border-radius: 12px;
@@ -108,12 +108,12 @@
         border: 2px solid transparent;
     }
 
-    .game-card:hover {
+    .fun-card:hover {
         transform: translateY(-6px);
         box-shadow: 0 8px 18px rgba(0,0,0,0.15);
     }
 
-    .game-card img {
+    .fun-card img {
         width: 100%;
         border-radius: 10px;
     }
@@ -153,12 +153,12 @@
     }
 
     /* Favourite card outline */
-    .game-card.favourite {
+    .fun-card.favourite {
         border-color: gold;
     }
 
-    /* Game Viewer */
-    #game-viewer {
+    /* fun Viewer */
+    #fun-viewer {
         display: none;
         width: 100%;
         height: 100vh;
@@ -166,7 +166,7 @@
         position: relative;
     }
 
-    #game-frame {
+    #fun-frame {
         width: 100%;
         height: 100%;
         border: none;
@@ -254,19 +254,19 @@
 <body>
 
 <!-- Small top-left icon shown on main home page -->
-<a href="https://github.com/SmartSparkCoding/jacob-s-game-centre" target="_blank"><img id="home-icon" src="game_centre_icon.ico" alt="Game Centre Icon"></a>
+<a href="https://github.com/SmartSparkCoding/jacob-s-game-centre" target="_blank"><img id="home-icon" src="fun_centre_icon.ico" alt="Fun Centre Icon"></a>
 
 <!-- Loading Screen -->
 <div id="loading-screen">
-    <img id="loading-icon" src="game_centre_icon.ico" alt="Loading Icon">
+    <img id="loading-icon" src="fun_centre_icon.ico" alt="Loading Icon">
     <div id="loading-text">Created and Designed by Jacob N</div>
 </div>
 
 <div id="countdown"></div>
 
-<!-- Game Selection -->
-<div id="game-select">
-    <h1 style="grid-column: 1 / -1;">Game Centre</h1>
+<!-- fun Selection -->
+<div id="fun-select">
+    <h1 style="grid-column: 1 / -1;">Fun Centre</h1>
 
     <!-- Filter bar: choose creator, program, type -->
     <div id="filter-bar" style="grid-column: 1 / -1;">
@@ -283,20 +283,20 @@
     </div>
 
     <!--
-      HOW TO ADD A NEW GAME:
-      1. Copy one of the existing <div class="game-card" ...> blocks below.
-      2. Edit the onclick openGame('yourfile.html') to point to the game's HTML file.
+      HOW TO ADD A NEW fun:
+      1. Copy one of the existing <div class="fun-card" ...> blocks below.
+      2. Edit the onclick openfun('yourfile.html') to point to the fun's HTML file.
       3. Update the <img src="..."> and <h2> title.
-      4. IMPORTANT: set these data attributes on the .game-card element:
+      4. IMPORTANT: set these data attributes on the .fun-card element:
          - data-creator="Creator Name"
          - data-program="Program Name"   (e.g., "Scratch", "HTML", "TurboWarp")
-         - data-type="Game Type"         (e.g., "Shooter", "Platformer", "Puzzle")
+         - data-type="fun Type"         (e.g., "Shooter", "Platformer", "Puzzle")
       Example:
-      <div class="game-card" onclick="openGame('newgame.html')"
+      <div class="fun-card" onclick="openfun('newfun.html')"
            data-creator="Jane Doe" data-program="HTML" data-type="Puzzle">
     -->
 
-    <div class="game-card" onclick="openGame('slimeshooter.html')" data-creator="Tristan P" data-program="Scratch" data-type="Shooter">
+    <div class="fun-card" onclick="openfun('slimeshooter.html')" data-creator="Tristan P" data-program="Scratch" data-type="Shooter">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -305,7 +305,7 @@
         <p>Created by Tristan P<br>Designed in Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('orbitaloutpost.html')" data-creator="Jacob N" data-program="HTML" data-type="Strategy">
+    <div class="fun-card" onclick="openfun('orbitaloutpost.html')" data-creator="Jacob N" data-program="HTML" data-type="Strategy">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -314,7 +314,7 @@
         <p>Created by Jacob N<br>Created Locally in HTML</p>
     </div>
 
-    <div class="game-card" onclick="openGame('basketballshooter.html')" data-creator="Will R" data-program="HTML" data-type="Sports">
+    <div class="fun-card" onclick="openfun('basketballshooter.html')" data-creator="Will R" data-program="HTML" data-type="Sports">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -323,7 +323,7 @@
         <p>Created by Will R<br>Created Locally in HTML</p>
     </div>
 
-    <div class="game-card" onclick="openGame('driftrunner.html')" data-creator="Will R" data-program="HTML" data-type="Racing">
+    <div class="fun-card" onclick="openfun('driftrunner.html')" data-creator="Will R" data-program="HTML" data-type="Racing">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -332,7 +332,7 @@
         <p>Created by Will R<br>Created Locally in HTML</p>
     </div>
 
-    <div class="game-card" onclick="openGame('geometrydash.html')" data-creator="Pearcek15" data-program="Scratch" data-type="Platformer">
+    <div class="fun-card" onclick="openfun('geometrydash.html')" data-creator="Pearcek15" data-program="Scratch" data-type="Platformer">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -341,7 +341,7 @@
         <p>Created by Pearcek15 on Scratch<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('balloonrush.html')" data-creator="William L" data-program="Scratch" data-type="Arcade">
+    <div class="fun-card" onclick="openfun('balloonrush.html')" data-creator="William L" data-program="Scratch" data-type="Arcade">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -350,7 +350,7 @@
         <p>Created by William L<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('mariokartdsremastered.html')" data-creator="FantasticDolphin44" data-program="Scratch" data-type="Racing">
+    <div class="fun-card" onclick="openfun('mariokartdsremastered.html')" data-creator="FantasticDolphin44" data-program="Scratch" data-type="Racing">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -359,7 +359,7 @@
         <p>Created by FantasticDolphin44<br>Converted to HTML from Scratch (70FPS)</p>
     </div>
 
-    <div class="game-card" onclick="openGame('tacoclicker.html')" data-creator="Tristan P" data-program="Scratch" data-type="Clicker">
+    <div class="fun-card" onclick="openfun('tacoclicker.html')" data-creator="Tristan P" data-program="Scratch" data-type="Clicker">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -368,7 +368,7 @@
         <p>Created by Tristan P<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('paperminecraft.html')" data-creator="Griffpatch" data-program="Scratch" data-type="Adventure">
+    <div class="fun-card" onclick="openfun('paperminecraft.html')" data-creator="Griffpatch" data-program="Scratch" data-type="Adventure">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -377,7 +377,7 @@
         <p>Created by Griffpatch on Scratch<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('boxbrothers.html')" data-creator="IngsheKingKarl" data-program="Scratch" data-type="Platformer">
+    <div class="fun-card" onclick="openfun('boxbrothers.html')" data-creator="IngsheKingKarl" data-program="Scratch" data-type="Platformer">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -386,16 +386,16 @@
         <p>Created by IngsheKingKarl on Scratch<br>Converted to HTML from Scratch</p>
     </div>
 
-    <div class="game-card" onclick="openGame('suika.html')" data-creator="-SolarCode-" data-program="TurboWarp" data-type="Puzzle">
+    <div class="fun-card" onclick="openfun('suika.html')" data-creator="-SolarCode-" data-program="TurboWarp" data-type="Puzzle">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
         <img src="suika.jpg" alt="Suika Watermelon Clone">
-        <h2>Suika | Watermelon Game</h2>
+        <h2>Suika | Watermelon fun</h2>
         <p>Cloned by -SolarCode- on TurboWarp<br>Converted to HTML from TurboWarp</p>
     </div>
 
-    <div class="game-card" onclick="openGame('blockblast.html')" data-creator="Juicity" data-program="Scratch" data-type="Arcade">
+    <div class="fun-card" onclick="openfun('blockblast.html')" data-creator="Juicity" data-program="Scratch" data-type="Arcade">
         <div class="fav-btn" onclick="toggleFavourite(event, this)">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.3l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.76L5.82 21z"/></svg>
         </div>
@@ -405,16 +405,16 @@
     </div>
 </div>
 
-<!-- Game Viewer -->
-<div id="game-viewer">
+<!-- fun Viewer -->
+<div id="fun-viewer">
     <div id="back-btn" onclick="goBack()">Back</div>
-    <iframe id="game-frame"></iframe>
+    <iframe id="fun-frame"></iframe>
 </div>
 
 <!-- Blocking Overlay -->
 <div id="block-overlay">
     <div id="block-box">
-        <h2>Game Centre is blocked during Lesson Time</h2>
+        <h2>Fun Centre is blocked during Lesson Time</h2>
         <p id="unlock-countdown"></p>
         <input type="password" id="override-input" placeholder="Enter override code">
         <div id="override-btn" onclick="checkOverride()">Unlock</div>
@@ -536,7 +536,7 @@ window.onload = function() {
     const loadingScreen = document.getElementById("loading-screen");
     const loadingIcon = document.getElementById("loading-icon");
     const loadingText = document.getElementById("loading-text");
-    const gameSelect = document.getElementById("game-select");
+    const funSelect = document.getElementById("fun-select");
     const homeIcon = document.getElementById("home-icon");
 
     // Initial timings (ms)
@@ -566,8 +566,8 @@ window.onload = function() {
                     loadingScreen.style.opacity = "0";
                     setTimeout(() => {
                         loadingScreen.style.display = "none";
-                        // Show the game-select as a grid so it fills the x axis responsively
-                        gameSelect.style.display = "grid";
+                        // Show the fun-select as a grid so it fills the x axis responsively
+                        funSelect.style.display = "grid";
                         // Show the small top-left icon on the main home page
                         homeIcon.style.display = "block";
 
@@ -580,23 +580,23 @@ window.onload = function() {
     }, showIconDuration);
 };
 
-/* Open Game */
-function openGame(file) {
+/* Open fun */
+function openfun(file) {
     sessionStorage.setItem("gc_verified", "yes");
     
-    document.getElementById("game-select").style.display = "none";
-    document.getElementById("game-viewer").style.display = "block";
-    document.getElementById("game-frame").src = file;
-    // hide the home icon when viewing a game
+    document.getElementById("fun-select").style.display = "none";
+    document.getElementById("fun-viewer").style.display = "block";
+    document.getElementById("fun-frame").src = file;
+    // hide the home icon when viewing a fun
     document.getElementById("home-icon").style.display = "none";
 }
 
 /* Back Button */
 function goBack() {
-    document.getElementById("game-viewer").style.display = "none";
-    document.getElementById("game-frame").src = "";
-    // show the game-select as a grid again
-    document.getElementById("game-select").style.display = "grid";
+    document.getElementById("fun-viewer").style.display = "none";
+    document.getElementById("fun-frame").src = "";
+    // show the fun-select as a grid again
+    document.getElementById("fun-select").style.display = "grid";
     // show the top-left icon again on the main home page
     document.getElementById("home-icon").style.display = "block";
 }
@@ -614,7 +614,7 @@ const FAV_KEY = "gc_favourites_v1";
 */
 function toggleFavourite(event, btn) {
     event.stopPropagation();
-    const card = btn.closest(".game-card");
+    const card = btn.closest(".fun-card");
     const id = getCardId(card);
 
     let favs = loadFavourites();
@@ -656,7 +656,7 @@ function saveFavourites(arr) {
 /* Apply favourite classes to cards and star buttons */
 function applyFavouritesToCards() {
     const favs = loadFavourites();
-    document.querySelectorAll(".game-card").forEach(card => {
+    document.querySelectorAll(".fun-card").forEach(card => {
         const id = getCardId(card);
         if (favs.indexOf(id) !== -1) {
             card.classList.add("favourite");
@@ -674,8 +674,8 @@ function applyFavouritesToCards() {
    This function preserves the filtered set: it reorders only visible cards.
 */
 function reorderCards() {
-    const container = document.getElementById("game-select");
-    const cards = Array.from(container.querySelectorAll(".game-card"));
+    const container = document.getElementById("fun-select");
+    const cards = Array.from(container.querySelectorAll(".fun-card"));
     // Keep the filter bar and heading in place; we only reorder the cards themselves.
     const favs = loadFavourites();
 
@@ -702,7 +702,7 @@ function initFilters() {
     const typeSelect = document.getElementById("filter-type");
     const clearBtn = document.getElementById("clear-filters");
 
-    const cards = Array.from(document.querySelectorAll(".game-card"));
+    const cards = Array.from(document.querySelectorAll(".fun-card"));
 
     const creators = new Set();
     const programs = new Set();
@@ -751,7 +751,7 @@ function applyFilters() {
     const program = document.getElementById("filter-program").value;
     const type = document.getElementById("filter-type").value;
 
-    document.querySelectorAll(".game-card").forEach(card => {
+    document.querySelectorAll(".fun-card").forEach(card => {
         const cr = card.getAttribute("data-creator") || "";
         const pr = card.getAttribute("data-program") || "";
         const ty = card.getAttribute("data-type") || "";
@@ -784,9 +784,9 @@ function initFavouritesAndFilters() {
     reorderCards();
 }
 
-/* Ensure clicking the card still opens the game even if clicking inside the card (but not the star) */
+/* Ensure clicking the card still opens the fun even if clicking inside the card (but not the star) */
 document.addEventListener("click", function(e) {
-    // No global handling needed; each card has onclick openGame already.
+    // No global handling needed; each card has onclick openfun already.
 });
 
 /* End of favourites & filters section */
