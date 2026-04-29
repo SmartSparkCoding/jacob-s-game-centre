@@ -433,22 +433,37 @@ function getRealCode() {
 /* NEW: Prevent relocking after override */
 let overrideActive = false;
 
-/* Lesson time windows (GMT) */
+/* Lesson time windows (UK local time: BST/GMT via Europe/London) */
 const lessonWindows = [
     ["08:40", "11:00"],
     ["11:25", "13:00"],
     ["14:20", "15:50"]
 ];
 
-/* Check if current GMT time is within lesson windows */
+/* Get UK local day/hour/minute (BST/GMT handled automatically) */
+function getUkTimeParts() {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/London",
+        weekday: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+    }).formatToParts(new Date());
+
+    const weekday = parts.find(p => p.type === "weekday")?.value;
+    const hour = Number(parts.find(p => p.type === "hour")?.value || 0);
+    const minute = Number(parts.find(p => p.type === "minute")?.value || 0);
+
+    const weekdayMap = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 0 };
+    return { day: weekdayMap[weekday] ?? 0, current: hour * 60 + minute };
+}
+
+/* Check if current UK time is within lesson windows */
 function isLessonTime() {
     if (overrideActive) return false; // NEW: override stops locking
 
-    const now = new Date();
-    const day = now.getUTCDay();
+    const { day, current } = getUkTimeParts();
     if (day === 0 || day === 6) return false; // Weekend
-
-    const current = now.getUTCHours() * 60 + now.getUTCMinutes();
 
     for (let [start, end] of lessonWindows) {
         const [sh, sm] = start.split(":").map(Number);
@@ -465,8 +480,7 @@ function isLessonTime() {
 function getTimeUntilChange() {
     if (overrideActive) return null; // NEW: no countdown after override
 
-    const now = new Date();
-    const current = now.getUTCHours() * 60 + now.getUTCMinutes();
+    const { current } = getUkTimeParts();
 
     let times = [];
 
@@ -505,11 +519,11 @@ function updateLockState() {
     if (lesson) {
         overlay.style.display = "flex";
         countdown.style.display = "none";
-        unlockCountdown.innerText = mins !== null ? `Unlocks in ${mins} minutes` : "";
+        unlockCountdown.innerText = mins !== null ? `Unlocks in ${mins} minutes (BST)` : "";
     } else {
         overlay.style.display = "none";
         countdown.style.display = "block";
-        countdown.innerText = mins !== null ? `Locking in ${mins} minutes` : "";
+        countdown.innerText = mins !== null ? `Locking in ${mins} minutes (BST)` : "";
     }
 }
 
