@@ -203,6 +203,27 @@
         z-index: 20;
     }
 
+    /* Center top welcome label (click to rename) */
+    #welcome-banner {
+        position: fixed;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: white;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-size: 14px;
+        display: none;
+        z-index: 20;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    #welcome-banner:hover {
+        background: #555;
+    }
+
     /* Blocking Overlay */
     #block-overlay {
         position: fixed;
@@ -245,6 +266,50 @@
         background: #555;
     }
 
+    /* Name prompt overlay */
+    #name-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.55);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 60;
+    }
+
+    #name-box {
+        background: white;
+        padding: 30px;
+        width: 350px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+
+    #name-input {
+        width: 80%;
+        padding: 10px;
+        margin-top: 12px;
+        border-radius: 6px;
+        border: 1px solid #aaa;
+    }
+
+    #name-save-btn {
+        margin-top: 12px;
+        padding: 10px 20px;
+        background: #333;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    #name-save-btn:hover {
+        background: #555;
+    }
+
     /* Responsive tweaks */
     @media (max-width: 520px) {
         #filter-bar { padding: 0 12px; }
@@ -263,6 +328,7 @@
 </div>
 
 <div id="countdown"></div>
+<div id="welcome-banner" onclick="startNameFlow(true)"></div>
 
 <!-- fun Selection -->
 <div id="fun-select">
@@ -421,9 +487,23 @@
     </div>
 </div>
 
+<!-- Name Prompt Overlay -->
+<div id="name-overlay">
+    <div id="name-box">
+        <h2>Welcome</h2>
+        <p id="name-prompt-text">Please type your name to continue</p>
+        <input type="text" id="name-input" placeholder="Enter your name" maxlength="30">
+        <div id="name-save-btn" onclick="saveUserNameFromInput()">Save Name</div>
+    </div>
+</div>
+
 <script>
 
 const scrambled = "2a9b0c5d1e2f1g5h0i2j1k7l2m9n0o5p1q2r1s5t0u2v1w7x2y0z1a2b0c5";
+const USER_NAME_KEY = "gc_user_name_v1";
+
+let namePromptOpen = false;
+let renameMode = false;
 
 /* Function to extract the real code */
 function getRealCode() {
@@ -432,6 +512,74 @@ function getRealCode() {
 
 /* NEW: Prevent relocking after override */
 let overrideActive = false;
+
+function loadUserName() {
+    try {
+        return (localStorage.getItem(USER_NAME_KEY) || "").trim();
+    } catch (e) {
+        return "";
+    }
+}
+
+function saveUserName(name) {
+    try {
+        localStorage.setItem(USER_NAME_KEY, name);
+    } catch (e) {
+        console.warn("Could not save name", e);
+    }
+}
+
+function renderWelcomeBanner() {
+    const banner = document.getElementById("welcome-banner");
+    const name = loadUserName();
+    if (name) {
+        banner.innerText = `Welcome ${name}`;
+        banner.style.display = "block";
+    } else {
+        banner.style.display = "none";
+    }
+}
+
+function hideNameOverlay() {
+    document.getElementById("name-overlay").style.display = "none";
+    namePromptOpen = false;
+    renameMode = false;
+}
+
+function startNameFlow(forceRename = false) {
+    const alreadySet = loadUserName();
+    if (!forceRename && alreadySet) {
+        renderWelcomeBanner();
+        return;
+    }
+    if (namePromptOpen) return;
+
+    namePromptOpen = true;
+    renameMode = forceRename;
+    const overlay = document.getElementById("name-overlay");
+    const input = document.getElementById("name-input");
+    const promptText = document.getElementById("name-prompt-text");
+
+    promptText.innerText = forceRename ? "Change your name" : "Please type your name to continue";
+    input.value = alreadySet;
+    overlay.style.display = "flex";
+    setTimeout(() => input.focus(), 0);
+}
+
+function saveUserNameFromInput() {
+    const input = document.getElementById("name-input");
+    const value = (input.value || "").trim();
+
+    if (!value) {
+        alert("Please enter a name");
+        input.focus();
+        return;
+    }
+
+    saveUserName(value);
+    renderWelcomeBanner();
+    hideNameOverlay();
+}
 
 /* Lesson time windows (UK local time: BST/GMT via Europe/London) */
 const lessonWindows = [
@@ -510,6 +658,7 @@ function updateLockState() {
     if (overrideActive) {
         overlay.style.display = "none";
         countdown.style.display = "none";
+        if (!loadUserName()) startNameFlow(false);
         return; // Stop here ONLY after override
     }
 
@@ -520,11 +669,15 @@ function updateLockState() {
         overlay.style.display = "flex";
         countdown.style.display = "none";
         unlockCountdown.innerText = mins !== null ? `Unlocks in ${mins} minutes (BST)` : "";
+        if (!renameMode) hideNameOverlay();
     } else {
         overlay.style.display = "none";
         countdown.style.display = "block";
         countdown.innerText = mins !== null ? `Locking in ${mins} minutes (BST)` : "";
+        if (!loadUserName()) startNameFlow(false);
     }
+
+    renderWelcomeBanner();
 }
 
 /* Override code check */
@@ -535,6 +688,7 @@ function checkOverride() {
         overrideActive = true; // NEW: permanently unlocked
         document.getElementById("block-overlay").style.display = "none";
         document.getElementById("countdown").style.display = "none";
+        if (!loadUserName()) startNameFlow(false);
     } else {
         alert("Incorrect code");
     }
@@ -587,6 +741,8 @@ window.onload = function() {
 
                         // Initialize favourites and filters after UI is visible
                         initFavouritesAndFilters();
+                        renderWelcomeBanner();
+                        if (!isLessonTime() && !loadUserName()) startNameFlow(false);
                     }, loadingFadeDuration);
                 }, textVisibleDuration);
             }, textShowDelay);
@@ -801,6 +957,10 @@ function initFavouritesAndFilters() {
 /* Ensure clicking the card still opens the fun even if clicking inside the card (but not the star) */
 document.addEventListener("click", function(e) {
     // No global handling needed; each card has onclick openfun already.
+});
+
+document.getElementById("name-input").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") saveUserNameFromInput();
 });
 
 /* End of favourites & filters section */
